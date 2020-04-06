@@ -1,14 +1,25 @@
 {
-  "name": "fancy-tree",
-  "version": "0.1.0",
-  "private": true,
+  "name": "fancy-tree2",
+  "version": "1.6.8",
+  "description": "a vue tree component",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ajiangpz/blog"
+  },
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "package": "vue-cli-service build --target lib --fancy-tree  main ./src/index.js"
   },
   "dependencies": {
+    "@riophae/vue-treeselect": "^0.4.0",
     "core-js": "^3.6.4",
+    "lodash": "^4.17.15",
+    "material-colors": "^1.2.6",
+    "node-sass": "^4.13.1",
+    "sass-loader": "^8.0.2",
     "vue": "^2.6.11"
   },
   "devDependencies": {
