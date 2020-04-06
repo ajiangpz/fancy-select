@@ -23,6 +23,7 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
       border-bottom-right-radius: 0px;
     }
   }
+
   &__value-container {
     flex: 1;
     margin-bottom: 5px;
@@ -69,11 +70,15 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
     color: #039be5;
     line-height: 0;
   }
+  &__has-value &__input-container {
+    padding-left: 0;
+  }
   &__input-container {
     max-width: 100%;
     padding-top: 5px;
     display: inline-block;
     line-height: 0;
+    padding-left: 5px;
   }
   &__internal-item {
     width: 40px;
@@ -115,28 +120,41 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
       border-top-color: $fancy-tree-controls-dropdown-divider-color;
     }
   }
+
   &__treenode-constainer {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     height: 30px;
   }
+  &__checkbox-container {
+    width: 20px;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+  }
+  &__treenode-arrow-container,
+  &__treenode-arrow-placeholder {
+    width: 20px;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 0;
+  }
   &__treenode-arrow {
-    margin: 0 10px 0px 10px;
     width: 9px;
     height: 9px;
     color: #ccc;
+    margin: 0 auto;
     vertical-align: middle;
   }
   & svg {
     fill: currentColor;
   }
-  &__treenode-arrow-placeholder {
-    width: 20px;
-  }
+
   &__checkbox {
     display: block;
-    margin-right: 12px;
+    margin: auto;
     width: 12px;
     height: 12px;
     border-width: 1px;
@@ -154,6 +172,7 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
       background: #039be5;
     }
   }
+
   &__check-mark,
   &__minus-mark {
     display: block;
@@ -196,9 +215,13 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
     background-color: #fff;
   }
   &__label {
-    display: inline-block;
+    display: table-cell;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: middle;
+    max-width: 100%;
+    padding-left: 5px;
+
   }
   &__indent-level-0 {
     padding-left: 5px;

@@ -97,7 +97,9 @@ export default {
     wrapperClass() {
       return {
         "fancy-tree": true,
-        "fancy-tree--open": this.dropdown.isOpen
+        "fancy-tree--open": this.dropdown.isOpen,
+        "fancy-tree--searchable":this.searchable,
+        "fancy-tree--has-value":this.hasValue
       };
     },
     selectedNodes() {
@@ -141,6 +143,9 @@ export default {
         internalValues.push(...indeterminateNodeIds);
       }
       return internalValues;
+    },
+    hasValue() {
+      return this.internalValues.length > 0;
     }
   },
   watch: {
