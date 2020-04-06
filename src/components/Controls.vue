@@ -5,15 +5,24 @@
     ref="fancy-tree-controls"
   >
     <div class="fancy-tree__value-container">
-      <div class="fancy-tree__input-container">
-        <input
-          class="fancy-tree__input"
-          type="text"
-          @blur="handleBlur"
-          v-model="value"
-          @input="handleInput"
-          ref="input"
-        />
+      <div class="fancy-tree__internal-values-container">
+        <internal-item
+          v-for="node in instance.internalValues.map(id =>
+            instance.getNode(id)
+          )"
+          :key="node.id"
+          :node="node"
+        ></internal-item>
+        <div class="fancy-tree__input-container">
+          <input
+            class="fancy-tree__input"
+            type="text"
+            @blur="handleBlur"
+            v-model="value"
+            @input="handleInput"
+            ref="input"
+          />
+        </div>
       </div>
     </div>
     <div
@@ -29,9 +38,11 @@
 <script>
 import Arrow from "./icons/Arrow.vue";
 import { debounce } from "../utils/debounce";
+import InternalItem from "./InternalItem.vue";
 export default {
   components: {
-    Arrow
+    Arrow,
+    InternalItem
   },
   inject: ["instance"],
   created() {
@@ -39,7 +50,8 @@ export default {
   },
   data() {
     return {
-      value: ""
+      value: "",
+      test: [{ id: 1, label: "11322" }]
     };
   },
   methods: {

@@ -9,7 +9,15 @@ import Controls from "./Controls.vue";
 import Dropdown from "./Dropdown.vue";
 import createMap from "../utils/createMap.js";
 import { onLeftClick } from "../utils/onLeftClick";
-import { UNCHECKED, CHECKED, INDETERMINATE } from "../contants";
+import {
+  UNCHECKED,
+  CHECKED,
+  INDETERMINATE,
+  INCLUDE_PARENT,
+  INCLUDE_LEAF,
+  ALL,
+  ALL_WITH_INDETERMINATE
+} from "../contants";
 import { removeFromArray } from "../utils/removeFromArray";
 import { includes } from "../utils/includes";
 function stringifyOptionPropValue(value) {
@@ -66,6 +74,19 @@ export default {
     matchKeys: {
       type: Array,
       default: () => ["label"]
+    },
+    includeValue: {
+      type: String,
+      default: INCLUDE_PARENT,
+      validator: value => {
+        const acceptableTypes = [
+          INCLUDE_PARENT,
+          INCLUDE_LEAF,
+          ALL,
+          ALL_WITH_INDETERMINATE
+        ];
+        return includes(acceptableTypes, value);
+      }
     }
   },
   components: {
@@ -84,6 +105,42 @@ export default {
     },
     hasParentNodes() {
       return this.forest.normalizedTreeData.some(rootNode => rootNode.isParent);
+    },
+    internalValues() {
+      let internalValues;
+      if (this.includeValue == ALL) {
+        internalValues = this.forest.selectedNodeIds.slice();
+      } else if (this.includeValue == INCLUDE_PARENT) {
+        internalValues = this.forest.selectedNodeIds.filter(id => {
+          const node = this.getNode(id);
+          if (node.isRootNode) return true;
+          // 返回父节点没有被选中的节点，因为如果父节点被选中，直接返回父节点就行了
+          return !this.isSelected(node.parentNode);
+        });
+      }
+      // 只返回子节点
+      else if (this.includeValue == INCLUDE_LEAF) {
+        internalValues = this.forest.selectedNodeIds.filter(id => {
+          let node = this.getNode(id);
+          if (node.isLeaf) {
+            return true;
+          }
+          return node.children.length === 0;
+        });
+      } else if (this.includeValue == ALL_WITH_INDETERMINATE) {
+        let indeterminateNodeIds = [];
+        internalValues = this.forest.selectedNodeIds.slice();
+        // 遍历每个选中的节点，判断它的祖先节点是否为中间状态
+        this.selectedNodes.forEach(selectedNode => {
+          selectedNode.ancestors.forEach(ancestor => {
+            if (includes(indeterminateNodeIds, ancestor.id)) return;
+            if (includes(internalValues, ancestor.id)) return;
+            indeterminateNodeIds.push(ancestor.id);
+          });
+        });
+        internalValues.push(...indeterminateNodeIds);
+      }
+      return internalValues;
     }
   },
   watch: {

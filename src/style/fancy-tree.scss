@@ -7,10 +7,9 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
   position: relative;
   text-align: left;
   &__controls {
-    padding: 10px;
     display: flex;
     width: 100%;
-    height: 36px;
+    min-height: 36px;
     border: $fancy-tree-controls-border-width solid
       $fancy-tree-controls-border-color;
     border-radius: 5px;
@@ -18,6 +17,7 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
     background: #fff;
     justify-content: center;
     align-items: center;
+    padding: 0 5px;
     .fancy-tree--open & {
       border-bottom-left-radius: 0px;
       border-bottom-right-radius: 0px;
@@ -25,11 +25,71 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
   }
   &__value-container {
     flex: 1;
+    margin-bottom: 5px;
+  }
+  &__internal-value-item-container {
+    display: inline-block;
+    padding-top: 5px;
+    padding-right: 5px;
+    vertical-align: top;
+  }
+  &__internal-value-item {
+    display: inline-table;
+    cursor: pointer;
+    background: #e3f2fd;
+    padding: 2px;
+    border-right: 1px solid transparent;
+    border-radius: 2px;
+    color: #039be5;
+    font-size: 12px;
+    vertical-align: top;
+  }
+  &__internal-values-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  &__internal-value-label,
+  &__internal-value-remove {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 0 5px;
+    svg {
+      width: 6px;
+      height: 6px;
+    }
+  }
+  &__internal-value-label {
+    box-sizing: border-box;
+    padding-right: 5px;
+  }
+  &__internal-value-remove {
+    padding-left: 5px;
+    border-left: 1px solid #fff;
+    color: #039be5;
+    line-height: 0;
+  }
+  &__input-container {
+    max-width: 100%;
+    padding-top: 5px;
+    display: inline-block;
+    line-height: 0;
+  }
+  &__internal-item {
+    width: 40px;
+    display: inline-block;
+    background-color: #fff;
+    border-color: #e0e0e0;
+    border-radius: 2px;
   }
   &__input {
-    width: 100%;
-    border: none;
+    line-height: inherit;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
     outline: none;
+    font-size: 12px;
   }
   &__control-arrow-container {
     flex: none;
@@ -68,7 +128,7 @@ $fancy-tree-controls-dropdown-divider-color: $md-grey-300;
     color: #ccc;
     vertical-align: middle;
   }
-  & svg{
+  & svg {
     fill: currentColor;
   }
   &__treenode-arrow-placeholder {
