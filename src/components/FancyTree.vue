@@ -9,6 +9,7 @@ import Controls from "./Controls.vue";
 import Dropdown from "./Dropdown.vue";
 import createMap from "../utils/createMap.js";
 import { onLeftClick } from "../utils/onLeftClick";
+
 import {
   UNCHECKED,
   CHECKED,
@@ -52,7 +53,8 @@ export default {
         active: false,
         noResults: true,
         countMap: createMap()
-      }
+      },
+
     };
   },
   props: {
@@ -87,6 +89,12 @@ export default {
         ];
         return includes(acceptableTypes, value);
       }
+    },
+    noResultsText:{
+      type:String,
+      default(){
+        return '暂无数据'
+      }
     }
   },
   components: {
@@ -98,8 +106,8 @@ export default {
       return {
         "fancy-tree": true,
         "fancy-tree--open": this.dropdown.isOpen,
-        "fancy-tree--searchable":this.searchable,
-        "fancy-tree--has-value":this.hasValue
+        "fancy-tree--searchable": this.searchable,
+        "fancy-tree--has-value": this.hasValue
       };
     },
     selectedNodes() {
@@ -261,6 +269,7 @@ export default {
           this.treeData,
           prevNodeMap
         );
+        this.buildForestState();
       } else {
         this.forest.normalizedTreeData = [];
       }
@@ -277,6 +286,11 @@ export default {
         return true;
       }
       return false;
+    },
+    shouldExpand(node) {
+      return this.localSearch.active
+        ? node.isExpandedOnSearch
+        : node.isExpanded;
     },
     // 规范数据
     normalize(parentNode, nodes, prevNodeMap) {
@@ -343,8 +357,8 @@ export default {
             this.normalize(normalizedNode, children, prevNodeMap)
           );
           if (isDefaultExpanded === true) {
-            normalizedNode.parents.forEach(parent => {
-              parent.isExpanded = true;
+            normalizedNode.ancestors.forEach(ancestor => {
+              ancestor.isExpanded = true;
             });
           }
         }
@@ -526,9 +540,6 @@ export default {
         ) {
           node.parentNode.isExpandedOnSearch = true;
           node.parentNode.hasMatchedDescendants = true;
-          if (node.parentNode.isRootNode) {
-            console.log("-----------这是一个根节点-------------");
-          }
         }
       });
     },

@@ -6,7 +6,8 @@ export function createTree(size, level) {
         label: Math.random(0, 1),
         expanded: true,
         children: [],
-        id: id + (i + 1)
+        id: id + (i + 1),
+        isDefaultExpanded:true
       };
       root.push(item);
       if (level > 0) {

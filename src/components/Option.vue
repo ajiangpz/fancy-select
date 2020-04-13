@@ -1,6 +1,7 @@
 <script>
 import ArrowIcon from "./icons/Arrow";
 import { UNCHECKED, CHECKED, INDETERMINATE } from "../contants";
+
 let arrowPlaceHolder, checkedMark, minusMark;
 const Option = {
   props: {
@@ -15,6 +16,10 @@ const Option = {
     shouldShowNode() {
       const { instance, node } = this;
       return instance.shouldShowNodeInDropdown(node);
+    },
+    shouldExpand() {
+      const { instance, node } = this;
+      return instance.shouldExpand(node);
     }
   },
   methods: {
@@ -30,14 +35,15 @@ const Option = {
       };
 
       return (
-        <div
-          class={nodeClass}
-          data-id={node.id}
-          onmousedown={this.handleNodeClick}
-        >
+        <div class={nodeClass} data-id={node.id}>
           {this.renderArrow()}
-          {this.renderCheckBox()}
-          <label class="fancy-tree__label">{node[instance.label]}</label>
+          <div
+            class="fanct-tree__label-container"
+            onmousedown={this.handleNodeClick}
+          >
+            {this.renderCheckBox()}
+            <label class="fancy-tree__label">{node[instance.label]}</label>
+          </div>
         </div>
       );
     },
@@ -46,10 +52,13 @@ const Option = {
       if (node.isParent) {
         const arrowClass = {
           "fancy-tree__treenode-arrow": true,
-          "fancy-tree__treenode-arrow--rotated": this.isExpanded
+          "fancy-tree__treenode-arrow--rotated": this.shouldExpand  
         };
         return (
-          <div class="fancy-tree__treenode-arrow-container">
+          <div
+            class="fancy-tree__treenode-arrow-container"
+            onmousedown={this.handleArrowClick}
+          >
             <ArrowIcon class={arrowClass} />
           </div>
         );
@@ -64,6 +73,14 @@ const Option = {
       }
 
       return null;
+    },
+    handleArrowClick() {
+      const { instance, node } = this;
+      if (instance.localSearch.active) {
+        node.isExpandedOnSearch = !node.isExpandedOnSearch;
+      } else {
+        node.isExpanded = !node.isExpanded;
+      }
     },
     handleNodeClick() {
       const { instance, node } = this;
@@ -96,6 +113,9 @@ const Option = {
     },
     renderChildrenNodes() {
       const { instance, node } = this;
+      if(!this.shouldExpand){
+        return null;
+      }
       return node[instance.childKey].map(childNode => (
         <Option node={childNode} key={childNode.id} />
       ));
@@ -112,6 +132,7 @@ const Option = {
       );
     }
   },
+
   render() {
     const { node } = this;
     const listItemClass = {

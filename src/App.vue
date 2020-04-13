@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <!-- <div class="item">
+    <div class="item">
       <treeselect
         v-model="value"
         :multiple="true"
@@ -9,7 +9,7 @@
         :alwaysOpen="true"
         :disableFuzzyMatching="true"
       />
-    </div> -->
+    </div>
     <div class="item">
       <fancy-tree :tree-data="options"> </fancy-tree>
     </div>
@@ -18,10 +18,10 @@
 
 <script>
 // import the component
-// import Treeselect from "@riophae/vue-treeselect";
+import Treeselect from "@riophae/vue-treeselect";
 import FancyTree from "./components/FancyTree";
 // import the styles
-// import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import "./style/fancy-tree.scss";
 
 import { createTree } from "./utils";
@@ -34,9 +34,10 @@ export default {
   },
 
   name: "App",
-  components: { 
-    // Treeselect,
-     FancyTree },
+  components: {
+    Treeselect,
+    FancyTree
+  },
   created() {
     this.options = createTree(10, 2);
   },
