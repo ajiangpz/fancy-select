@@ -8,6 +8,6 @@
 
 <script>
 export default {
-  name: "fancy-tree--x"
+  name: "fancy-select--x"
 };
 </script>
