@@ -2,35 +2,42 @@
 import { onLeftClick } from "../utils/onLeftClick";
 import DeleteIcon from "./icons/Delete.vue";
 export default {
-  name: "fancy-tree__internal-value-item",
+  name: "fancy-select__internal-value-item",
   inject: ["instance"],
   props: {
     node: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
+    labelMaxWidth: {
+      type: Number,
+    },
   },
+
   methods: {
     handleMouseDown: onLeftClick(function handleMouseDown() {
       const { instance, node } = this;
       instance.select(node);
-    })
+    }),
   },
   render() {
     const { node } = this;
     const itemClass = {
-      "fancy-tree__internal-value-item": true
+      "fancy-select__internal-value-item": true,
     };
+    let nodeStyle = { maxWidth: `${this.labelMaxWidth}px` };
     return (
-      <div class="fancy-tree__internal-value-item-container">
+      <div class="fancy-select__internal-value-item-container">
         <div class={itemClass} onmousedown={this.handleMouseDown}>
-          <span class="fancy-tree__internal-value-label">{node.label}</span>
-          <span class="fancy-tree__icon fancy-tree__internal-value-remove">
+          <span class="fancy-select__internal-value-label" style={nodeStyle}>
+            {node.label}
+          </span>
+          <span class="fancy-select__icon fancy-select__internal-value-remove">
             <DeleteIcon />
           </span>
         </div>
       </div>
     );
-  }
+  },
 };
 </script>
