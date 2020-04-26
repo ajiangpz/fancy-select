@@ -4,17 +4,16 @@ export function createTree(size, level) {
     for (let i = 0; i < size; i++) {
       const item = {
         label: Math.random(0, 1),
-        expanded: true,
+        expanded: false,
         children: [],
         id: id + (i + 1),
-        isDefaultExpanded:true
+        isDefaultExpanded: false
       };
       root.push(item);
       if (level > 0) {
         addChilds(item.children, size, level - 1, item.id + "-");
-      }
-      else{
-        delete item.children
+      } else {
+        item.children = [];
       }
     }
   }
