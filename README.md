@@ -1,4 +1,4 @@
-# fancy-tree
+# fancy-select
 
 ## Project setup
 ```

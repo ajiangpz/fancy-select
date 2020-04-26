@@ -37,7 +37,7 @@ export default {
     renderTreeNodeList() {
       const {instance}=this;
       return (
-        <div class="fancy-tree__list">
+        <div class="fancy-select__list">
           {instance.forest.normalizedTreeData.map(node => (
             <Option node={node} key={node.id} />
           ))}
@@ -46,8 +46,8 @@ export default {
     },
     renderDropdown() {
       const {instance}=this;
-      const dropdownClass = {
-        "fancy-tree__dropdown": true
+      const dropdownClass = { 
+        "fancy-select__dropdown": true
       };
       return (
         <div

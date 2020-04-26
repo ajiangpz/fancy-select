@@ -5,13 +5,16 @@
         v-model="value"
         :multiple="true"
         :options="options"
-        :defaultExpandLevel="Infinity"
-        :alwaysOpen="true"
         :disableFuzzyMatching="true"
-      />
+      >
+      </treeselect>
     </div>
     <div class="item">
-      <fancy-tree :tree-data="options"> </fancy-tree>
+      <fancy-select
+        :tree-data="myOptions"
+        v-model="fancyData"
+        :multiple="true"
+      ></fancy-select>
     </div>
   </div>
 </template>
@@ -19,29 +22,60 @@
 <script>
 // import the component
 import Treeselect from "@riophae/vue-treeselect";
-import FancyTree from "./components/FancyTree";
+import FancySelect from "./components/FancySelect";
 // import the styles
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import "./style/fancy-tree.scss";
-
+import "./style/fancy-select.scss";
+import _ from "lodash";
 import { createTree } from "./utils";
 export default {
   data() {
     return {
       value: null,
-      options: []
+      options: [],
+      myOptions: [],
+      fancyData: null,
     };
   },
 
   name: "App",
   components: {
     Treeselect,
-    FancyTree
+    FancySelect,
   },
   created() {
-    this.options = createTree(10, 2);
+    this.options = createTree(10, 1);
+    this.myOptions = _.cloneDeep(this.options);
   },
-  methods: {}
+  methods: {
+    loadFn({ action, parentNode, callback }) {
+      if (action === "LOAD_CHILDREN_OPTIONS") {
+        switch (parentNode.id) {
+          case "1-1": {
+            setTimeout(() => {
+              parentNode.children = [
+                {
+                  id: "1-1-1",
+                  label: Math.random(0, 1),
+                },
+                {
+                  id: "1-1-12",
+                  label: Math.random(0, 1),
+                },
+              ];
+              callback();
+            }, 1000);
+            break;
+          }
+          default: {
+            parentNode.children = [];
+            callback();
+            break;
+          }
+        }
+      }
+    },
+  },
 };
 </script>
 
@@ -57,7 +91,6 @@ export default {
   justify-content: space-around;
   .item {
     width: 40%;
-    border: 1px solid #ccc;
     padding: 10px;
     border-radius: 5px;
     min-height: 400px;
