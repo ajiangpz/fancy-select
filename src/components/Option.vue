@@ -29,23 +29,26 @@ const Option = {
   },
   methods: {
     renderParentNode() {
-      const { node } = this;
+      const { instance, node } = this;
       const nodeClass = {
-        "fancy-select__treenode-constainer": true,
+        "fancy-select__treenode-container": true,
         // "fancy-select__treenode--selected": instance.isSelected(node),
         "fancy-select__treenode--disabled": node.isDisabled,
         "fancy-select__treenode--matched": node.isMatched,
-
+        "fancy-select__treenode--selected": instance.isSelected(node),
+        "fancy-select__treenode--isHighlighted": node.isHighlighted,
         "fancy-select__treenode--hide": !this.shouldShowNode,
       };
 
       return (
-        <div class={nodeClass} data-id={node.id}>
+        <div
+          class={nodeClass}
+          data-id={node.id}
+          onmouseenter={this.handleMouseEnterOption}
+          onmousedown={this.handleNodeClick}
+        >
           {this.renderArrow()}
-          <div
-            class="fancy-select__label-container"
-            onmousedown={this.handleNodeClick}
-          >
+          <div class="fancy-select__label-container">
             {this.renderCheckBox()}
             {this.renderLabel()}
           </div>
@@ -103,7 +106,10 @@ const Option = {
         </Tip>
       );
     },
-    handleArrowClick() {
+    handleArrowClick(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+
       let nextState;
       const { instance, node } = this;
       if (instance.localSearch.active) {
@@ -112,13 +118,17 @@ const Option = {
         nextState = node.isExpanded = !node.isExpanded;
       }
       if (nextState && !node.childrenStates.isLoaded) {
-        // 传入原始的数据
         instance.loadChildren(node.raw);
       }
     },
     handleNodeClick() {
       const { instance, node } = this;
       instance.select(node);
+    },
+    handleMouseEnterOption(evt) {
+      const { instance, node } = this;
+      if (evt.target !== evt.currentTarget) return;
+      instance.setCurrentHighlightedOption(node, false);
     },
     renderCheckBox() {
       const { instance, node } = this;
@@ -149,7 +159,7 @@ const Option = {
       );
     },
     renderChildrenNodes() {
-      const { instance, node } = this;
+      const { node } = this;
       if (!this.shouldExpand) {
         return null;
       }
@@ -157,7 +167,7 @@ const Option = {
         return null;
       }
 
-      return node[instance.childKey].map((childNode) => (
+      return node.children.map((childNode) => (
         <Option node={childNode} key={childNode.id} />
       ));
     },
@@ -185,12 +195,13 @@ const Option = {
     const indentLevel = node.level;
     const listItemClass = {
       "fancy-select__list-item": true,
+
       [`fancy-select__indent-level-${indentLevel}`]: true,
     };
     return (
       <div class={listItemClass}>
         {this.renderParentNode()}
-        {node.isParent && this.renderChildrenNodesList()}
+
       </div>
     );
   },
