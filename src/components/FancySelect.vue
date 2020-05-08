@@ -12,7 +12,7 @@ import { onLeftClick } from "../utils/onLeftClick";
 import { quickDiff } from "../utils/quickDiff";
 import { isPromise } from "../utils/isPromise";
 import { once } from "../utils/once";
-
+import { scrollIntoView } from "../utils/scrollIntoView";
 import {
   UNCHECKED,
   CHECKED,
@@ -32,8 +32,15 @@ function stringifyOptionPropValue(value) {
 function getErrorMessage(err) {
   return err.message || /* istanbul ignore next */ String(err);
 }
+function createChildrenStates() {
+  return {
+    isLoading: false,
+    isLoaded: false,
+    loadingErr: "",
+  };
+}
 export default {
-  name: "FancyTree",
+  name: "FancySelect",
   provide() {
     return {
       instance: this,
@@ -43,6 +50,7 @@ export default {
     return {
       dropdown: {
         isOpen: false,
+        current: null,
       },
       forest: {
         nodeMap: createMap(),
@@ -50,6 +58,7 @@ export default {
         selectedNodeMap: createMap(),
         selectedNodeIds: [],
         normalizedTreeData: [],
+        flattenTree: [],
       },
       controls: {
         searchQuery: "",
@@ -60,6 +69,7 @@ export default {
         noResults: true,
         countMap: createMap(),
       },
+      rootOptionsStates: createChildrenStates(),
     };
   },
   props: {
@@ -69,10 +79,6 @@ export default {
     label: {
       type: String,
       default: "label",
-    },
-    childKey: {
-      type: String,
-      default: "children",
     },
     // 是否多选
     multiple: {
@@ -122,6 +128,40 @@ export default {
       },
     },
     value: null,
+    placeHolder: {
+      type: String,
+      default() {
+        return "请选择数据...";
+      },
+    },
+    disableBranchNodes: {
+      type: Boolean,
+      default: false,
+    },
+    limit: {
+      type: Number,
+      default: Infinity,
+    },
+    limitText: {
+      type: Function,
+      default: function limitTextDefault(count) {
+        return `+ ${count}`;
+      },
+    },
+    normalizer: {
+      type: Function,
+      default: function(node) {
+        return {
+          id: node.id,
+          label: node.label,
+          children: node.children,
+        };
+      },
+    },
+    defaultExpandLevel: {
+      type: Number,
+      default: 0,
+    },
   },
   components: {
     Controls,
@@ -135,6 +175,8 @@ export default {
         "fancy-select--searchable": this.searchable,
         "fancy-select--has-value": this.hasValue,
         "fancy-select--single": this.single,
+        "fancy-select--multi": this.multiple,
+        "fancy-select--isFocused": this.controls.isFocus,
       };
     },
     selectedNodes() {
@@ -187,15 +229,39 @@ export default {
     single() {
       return !this.multiple;
     },
+    visibleOptionIds() {
+      const visibleOptionIds = [];
+      this.traverAllNodesByIndex((node) => {
+        if (
+          !this.localSearch.active ||
+          this.shouldNodeBeIncludedInSearchResult(node)
+        ) {
+          visibleOptionIds.push(node.id);
+        }
+        // 如果不需要展开父节点，那么不需要遍历父节点下面的子节点
+        if (node.isParent && !this.shouldExpand(node)) {
+          return false;
+        }
+      });
+      return visibleOptionIds;
+    },
+    hasVisibleOptions() {
+      return this.visibleOptionIds.length !== 0;
+    },
+    totalNode() {
+      return Object.keys(this.forest.nodeMap).length;
+    },
   },
   watch: {
     treeData: {
       handler() {
         this.initialize();
+        this.rootOptionsStates.isLoaded = Array.isArray(this.treeData);
       },
       immediate: true,
       deep: true,
     },
+
     "controls.searchQuery"() {
       this.handleLocalSearch();
     },
@@ -206,14 +272,10 @@ export default {
       }
     },
   },
+  created() {
+    this.resetFlags();
+  },
   methods: {
-    createChildrenStates() {
-      return {
-        isLoading: false,
-        isLoaded: false,
-        loadingErr: "",
-      };
-    },
     // 调用传入的loadOptions函数，
     // 因为传入的函数有加载子节点，加载根节点等
     // 因此通过这个这个函数来决定调用是应该如何执行
@@ -290,6 +352,19 @@ export default {
       const rowNodes = this.internalValues.map((id) => this.getNode(id).raw);
       return this.multiple ? rowNodes : rowNodes[0];
     },
+    getLast(arr) {
+      const length = arr ? arr.length : 0;
+      return length ? arr[length - 1] : undefined;
+    },
+    removeLastValue() {
+      if (!this.hasValue) {
+        return;
+      }
+      if (this.single) return this.clear();
+      const lastValue = this.getLast(this.internalValues);
+      const lastSelectedNode = this.getNode(lastValue);
+      this.select(lastSelectedNode);
+    },
     handleInputClick() {
       if (!this.dropdown.isOpen) {
         this.openDropdown();
@@ -316,7 +391,8 @@ export default {
       }
     },
     getDropdown() {
-      const $dropdown = this.$refs.dropdown;
+      const $dropdown = document.querySelector(".vue-recycle-scroller");
+      // console.log($dropdown);
       return $dropdown && $dropdown.nodeName !== "#comment" ? $dropdown : null;
     },
     blurInput() {
@@ -327,12 +403,13 @@ export default {
     },
     openDropdown() {
       this.dropdown.isOpen = true;
+      this.$nextTick(this.resetHighlightedOptionWhenNecessary());
       this.toggleClickOutsideEvent(true);
     },
     closeDropdown() {
-      // debugger;
       this.dropdown.isOpen = false;
       this.toggleClickOutsideEvent(false);
+      this.resetSearchQuery();
     },
     toggleDropdown() {
       if (!this.dropdown.isOpen) {
@@ -345,15 +422,21 @@ export default {
       evt.preventDefault();
       evt.stopPropagation();
       if (
-        this.$refs["inputBox"].$refs["valueContainer"].contains(
-          evt.target
-        ) &&
+        this.$refs["inputBox"].$refs["valueContainer"].contains(evt.target) &&
         !this.dropdown.isOpen
       ) {
         this.openDropdown();
       }
-      this.focusInput();
+      if (this._blurOnSelect) {
+        this.blurInput();
+      } else {
+        this.focusInput();
+      }
+      this.resetFlags();
     }),
+    resetFlags() {
+      this._blurOnSelect = false;
+    },
     traverAllNodesByIndex(callback) {
       const walk = (parentNode) => {
         parentNode.children.forEach((child) => {
@@ -396,10 +479,81 @@ export default {
           this.treeData,
           prevNodeMap
         );
+        this.fixSelectedNodeIds(this.internalValues);
         this.buildForestState();
+        this.flattenTree = this.flattenForest(this.forest.normalizedTreeData);
       } else {
         this.forest.normalizedTreeData = [];
       }
+    },
+    flattenForest(normalizedTreeData) {
+      const flattenTree = [];
+      // 如果要扁平化一个树，需要深度优先遍历每个节点才能按照原本的顺序展示这一个树
+      normalizedTreeData.forEach((node) => {
+        flattenTree.push(node);
+        this.traverseDescendantsDFS(node, function(node) {
+          flattenTree.push(node);
+        });
+      });
+      return flattenTree;
+    },
+    fixSelectedNodeIds(prevSelectedNodeIds) {
+      let nextSelectedNodeIds = [];
+      if (this.single || this.includeValue === ALL) {
+        nextSelectedNodeIds = prevSelectedNodeIds;
+      } else if (this.includeValue === INCLUDE_PARENT) {
+        prevSelectedNodeIds.forEach((nodeId) => {
+          nextSelectedNodeIds.push(nodeId);
+          const node = this.getNode(nodeId);
+          if (node.isParent) {
+            this.traverseDescendantsBFS(node, (descendant) => {
+              nextSelectedNodeIds.push(descendant.id);
+            });
+          }
+        });
+      } else if (this.includeValue === INCLUDE_LEAF) {
+        const map = createMap();
+        const queue = prevSelectedNodeIds.slice();
+        while (queue.length) {
+          const nodeId = queue.shift();
+
+          nextSelectedNodeIds.push(nodeId);
+          const node = this.getNode(nodeId);
+          if (node.isRootNode) continue;
+          if (map[node.parentNode.id]) {
+            map[node.parentNode.id] = node.parentNode.children.length;
+          }
+          if (--map[node.parentNode.id] === 0) {
+            nextSelectedNodeIds.push(node.parentNode.id);
+          }
+        }
+      } else if (this.includeValue === ALL_WITH_INDETERMINATE) {
+        const map = createMap();
+        const queue = prevSelectedNodeIds.filter((nodeId) => {
+          const node = this.getNode(nodeId);
+          return node.isLeaf || node.children.length;
+        });
+        while (queue.length) {
+          const nodeId = queue.shift();
+          nextSelectedNodeIds.push(nodeId);
+          const node = this.getNode(nodeId);
+          if (node.isRootNode) continue;
+          if (map[node.parentNode.id]) {
+            map[node.parentNode.id] = node.parentNode.children.length;
+          }
+          if (--map[node.parentNode.id] === 0) {
+            nextSelectedNodeIds.push(node.parentNode.id);
+          }
+        }
+      }
+      const hasChanged = quickDiff(
+        this.forest.selectedNodeIds,
+        nextSelectedNodeIds
+      );
+      if (hasChanged) {
+        this.forest.selectedNodeIds = nextSelectedNodeIds;
+      }
+      this.buildForestState();
     },
     match(needle, haystack) {
       return includes(haystack, needle);
@@ -421,117 +575,121 @@ export default {
     },
     // 规范数据
     normalize(parentNode, nodes, prevNodeMap) {
-      let normalizedTreeData = nodes.map((node) => {
-        const { id } = node;
-        const label = node[this.label];
-        const children = node[this.childKey];
-        const isParent = Array.isArray(children) || children === null;
-        const isLeaf = !isParent;
-        const isDisabled = !!node.isDisabled;
-        const isRootNode = parentNode === null;
-        const isDefaultExpanded = node.isDefaultExpanded;
-        const level = isRootNode ? 0 : parentNode.level + 1;
-        const lowerCased = this.matchKeys.reduce(
-          (prev, key) => ({
-            ...prev,
-            [key]: stringifyOptionPropValue(node[key]),
-          }),
-          {}
-        );
-        const nestedSearchLabel = isRootNode
-          ? lowerCased.label
-          : parentNode.nestedSearchLabel + " " + lowerCased.label;
+      let normalizedTreeData = nodes
+        .map((node) => [this.enhancedNormalizer(node), node])
+        .map(([node, raw]) => {
+          const { id } = node;
+          const label = node.label;
+          const children = node.children;
+          const isParent = Array.isArray(children) || children === null;
+          const isLeaf = !isParent;
+          const isDisabled = !!node.isDisabled;
+          const isRootNode = parentNode === null;
+          const isDefaultExpanded = node.isDefaultExpanded;
+          const level = isRootNode ? 0 : parentNode.level + 1;
+          const lowerCased = this.matchKeys.reduce(
+            (prev, key) => ({
+              ...prev,
+              [key]: stringifyOptionPropValue(node[key]),
+            }),
+            {}
+          );
+          const nestedSearchLabel = isRootNode
+            ? lowerCased.label
+            : parentNode.nestedSearchLabel + " " + lowerCased.label;
 
-        let normalizedNode = this.$set(this.forest.nodeMap, id, createMap());
-        this.$set(normalizedNode, "id", id);
-        this.$set(normalizedNode, this.label, label);
-        this.$set(normalizedNode, "level", level);
-        this.$set(normalizedNode, "isParent", isParent);
-        this.$set(normalizedNode, "isLeaf", isLeaf);
-        this.$set(normalizedNode, "isRootNode", isRootNode);
-        this.$set(normalizedNode, "parentNode", parentNode);
-        this.$set(normalizedNode, "isMatched", false);
-        this.$set(normalizedNode, "nestedSearchLabel", nestedSearchLabel);
-        this.$set(normalizedNode, "lowerCased", lowerCased);
-        this.$set(normalizedNode, "raw", node);
-        this.$set(
-          normalizedNode,
-          "ancestors",
-          isRootNode ? [] : [parentNode].concat(parentNode.ancestors)
-        );
-        this.$set(normalizedNode, "isDisabled", isDisabled);
-
-        if (isParent) {
-          const isLoaded = Array.isArray(children);
-          this.$set(normalizedNode, "childrenStates", {
-            ...this.createChildrenStates(),
-            isLoaded,
-          });
-          this.$set(normalizedNode, "count", {
-            all_children: 0,
-            leaf_children: 0,
-            all_descendant: 0,
-            leaf_descendant: 0,
-          });
-          this.$set(normalizedNode, "hasMatchedDescendants", false);
-          this.$set(normalizedNode, "hasDisabledDescendants", false);
-          this.$set(normalizedNode, "isExpandedOnSearch", false);
-          this.$set(normalizedNode, "showAllChildrenOnSearch", false);
+          let normalizedNode = this.$set(this.forest.nodeMap, id, createMap());
+          this.$set(normalizedNode, "id", id);
+          this.$set(normalizedNode, "label", label);
+          this.$set(normalizedNode, "level", level);
+          this.$set(normalizedNode, "isParent", isParent);
+          this.$set(normalizedNode, "isLeaf", isLeaf);
+          this.$set(normalizedNode, "isRootNode", isRootNode);
+          this.$set(normalizedNode, "parentNode", parentNode);
+          this.$set(normalizedNode, "isMatched", false);
+          this.$set(normalizedNode, "nestedSearchLabel", nestedSearchLabel);
+          this.$set(normalizedNode, "isHighlighted", false);
+          this.$set(normalizedNode, "lowerCased", lowerCased);
+          this.$set(normalizedNode, "raw", raw);
           this.$set(
             normalizedNode,
-            "isExpanded",
-            typeof isDefaultExpanded === "boolean"
-              ? isDefaultExpanded
-              : level < this.defaultExpandLevel
+            "ancestors",
+            isRootNode ? [] : [parentNode].concat(parentNode.ancestors)
           );
-          this.$set(
-            normalizedNode,
-            this.childKey,
-            isLoaded
-              ? this.normalize(normalizedNode, children, prevNodeMap)
-              : []
-          );
-          if (isDefaultExpanded === true) {
-            normalizedNode.ancestors.forEach((ancestor) => {
-              ancestor.isExpanded = true;
+          this.$set(normalizedNode, "isDisabled", isDisabled);
+
+          if (isParent) {
+            const isLoaded = Array.isArray(children);
+            this.$set(normalizedNode, "childrenStates", {
+              ...createChildrenStates(),
+              isLoaded,
             });
-          }
-        }
-        normalizedNode.ancestors.forEach(
-          (parent) => parent.count.all_descendant++
-        );
-        if (isLeaf) {
-          normalizedNode.ancestors.forEach(
-            (parent) => parent.count.leaf_descendant++
-          );
-        }
-        if (!isRootNode) {
-          parentNode.count.all_children++;
-          parentNode.count.leaf_children++;
-        }
-        // Preserve previous states.
-        if (prevNodeMap && prevNodeMap[id]) {
-          const prev = prevNodeMap[id];
-
-          normalizedNode.isMatched = prev.isMatched;
-          normalizedNode.showAllChildrenOnSearch = prev.showAllChildrenOnSearch;
-          normalizedNode.isHighlighted = prev.isHighlighted;
-
-          if (prev.isParent && normalizedNode.isParent) {
-            normalizedNode.isExpanded = prev.isExpanded;
-            normalizedNode.isExpandedOnSearch = prev.isExpandedOnSearch;
-            if (
-              prev.childrenStates.isLoaded &&
-              !normalizedNode.childrenStates.isLoaded
-            ) {
-              normalizedNode.isExpanded = false;
-            } else {
-              normalizedNode.childrenStates = { ...prev.childrenStates };
+            this.$set(normalizedNode, "count", {
+              all_children: 0,
+              leaf_children: 0,
+              all_descendant: 0,
+              leaf_descendant: 0,
+            });
+            this.$set(normalizedNode, "hasMatchedDescendants", false);
+            this.$set(normalizedNode, "hasDisabledDescendants", false);
+            this.$set(normalizedNode, "isExpandedOnSearch", false);
+            this.$set(normalizedNode, "showAllChildrenOnSearch", false);
+            this.$set(
+              normalizedNode,
+              "isExpanded",
+              typeof isDefaultExpanded === "boolean"
+                ? isDefaultExpanded
+                : level < this.defaultExpandLevel
+            );
+            this.$set(
+              normalizedNode,
+              "children",
+              isLoaded
+                ? this.normalize(normalizedNode, children, prevNodeMap)
+                : []
+            );
+            if (isDefaultExpanded === true) {
+              normalizedNode.ancestors.forEach((ancestor) => {
+                ancestor.isExpanded = true;
+              });
             }
           }
-        }
-        return normalizedNode;
-      });
+          normalizedNode.ancestors.forEach(
+            (parent) => parent.count.all_descendant++
+          );
+          if (isLeaf) {
+            normalizedNode.ancestors.forEach(
+              (parent) => parent.count.leaf_descendant++
+            );
+          }
+          if (!isRootNode) {
+            parentNode.count.all_children++;
+            parentNode.count.leaf_children++;
+          }
+          // Preserve previous states.
+          if (prevNodeMap && prevNodeMap[id]) {
+            const prev = prevNodeMap[id];
+
+            normalizedNode.isMatched = prev.isMatched;
+            normalizedNode.showAllChildrenOnSearch =
+              prev.showAllChildrenOnSearch;
+            normalizedNode.isHighlighted = prev.isHighlighted;
+
+            if (prev.isParent && normalizedNode.isParent) {
+              normalizedNode.isExpanded = prev.isExpanded;
+              normalizedNode.isExpandedOnSearch = prev.isExpandedOnSearch;
+              if (
+                prev.childrenStates.isLoaded &&
+                !normalizedNode.childrenStates.isLoaded
+              ) {
+                normalizedNode.isExpanded = false;
+              } else {
+                normalizedNode.childrenStates = { ...prev.childrenStates };
+              }
+            }
+          }
+          return normalizedNode;
+        });
       return normalizedTreeData;
     },
     clear() {
@@ -559,6 +717,13 @@ export default {
         this._deselectNode(node);
       }
       this.buildForestState();
+      if (this.localSearch.active && nextState && this.single) {
+        this.resetSearchQuery();
+      }
+      if (this.single) {
+        this._blurOnSelect = true;
+        this.closeDropdown();
+      }
     },
     _selectNode(node) {
       // 子节点处理方法
@@ -650,6 +815,16 @@ export default {
         callback(child);
       });
     },
+    traverseAllNodesByIndex(callback) {
+      const walk = (parentNode) => {
+        parentNode.children.forEach((child) => {
+          if (callback(child) !== false && child.isParent) {
+            walk(child);
+          }
+        });
+      };
+      walk({ children: this.forest.normalizedTreeData });
+    },
     handleLocalSearch() {
       const { searchQuery } = this.controls;
       const done = () => {};
@@ -719,6 +894,9 @@ export default {
         }
       });
     },
+    resetSearchQuery() {
+      this.controls.searchQuery = "";
+    },
     shouldShowNodeInDropdown(node) {
       if (
         this.localSearch.active &&
@@ -727,6 +905,85 @@ export default {
         return false;
       }
       return true;
+    },
+    resetHighlightedOptionWhenNecessary(forceReset = false) {
+      const { current } = this.dropdown;
+      if (forceReset || current == null || !(current in this.forest.nodeMap)) {
+        this.highlightFirstOption();
+      }
+    },
+    setCurrentHighlightedOption(node, scroll = true) {
+      const prev = this.dropdown.current;
+      if (prev != null && prev in this.forest.nodeMap) {
+        this.forest.nodeMap[prev].isHighlighted = false;
+      }
+      this.dropdown.current = node.id;
+      node.isHighlighted = true;
+      if (this.dropdown.isOpen && scroll) {
+        const scrollFn = () => {
+          const $dropdown = this.getDropdown();
+          const $option = document.querySelector(
+            `.fancy-select__treenode-container[data-id="${node.id}"]`
+          );
+
+          if ($option) {
+            scrollIntoView($dropdown, $option.parentNode.parentNode);
+          }
+        };
+        if (this.getDropdown()) {
+          scrollFn();
+        } else {
+          this.$nextTick(() => {
+            scrollFn();
+          });
+        }
+      }
+    },
+    highlightFirstOption() {
+      if (!this.hasVisibleOptions) return;
+      const first = this.visibleOptionIds[0];
+      this.setCurrentHighlightedOption(this.getNode(first));
+    },
+    highlightNextOption() {
+      // console.log(this.$refs);
+      if (!this.visibleOptionIds.length) return;
+      const next = this.visibleOptionIds.indexOf(this.dropdown.current) + 1;
+      if (next === this.visibleOptionIds.length)
+        return this.highlightFirstOption();
+      this.setCurrentHighlightedOption(
+        this.getNode(this.visibleOptionIds[next])
+      );
+    },
+    highlightPrevOption() {
+      if (!this.visibleOptionIds.length) return;
+      const prev = this.visibleOptionIds.indexOf(this.dropdown.current) - 1;
+      if (prev == -1) return this.highlightedLastOption();
+      this.setCurrentHighlightedOption(
+        this.getNode(this.visibleOptionIds[prev])
+      );
+    },
+    highlightedLastOption() {
+      if (!this.hasVisibleOptions) return;
+      const last = this.getLast(this.visibleOptionIds);
+      this.setCurrentHighlightedOption(this.getNode(last));
+    },
+    toggleExpanded(node) {
+      let nextState;
+      if (this.localSearch.active) {
+        nextState = node.isExpandedOnSearch = !node.isExpandedOnSearch;
+        if (nextState) node.showAllChildrenOnSearch = true;
+      } else {
+        nextState = node.isExpanded = !node.isExpanded;
+      }
+      if (nextState && !node.childrenStates.isLoaded) {
+        this.loadChildren(node.raw);
+      }
+    },
+    enhancedNormalizer(raw) {
+      return {
+        ...raw,
+        ...this.normalizer(raw),
+      };
     },
   },
 };
