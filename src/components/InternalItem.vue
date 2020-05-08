@@ -24,6 +24,7 @@ export default {
     const { node } = this;
     const itemClass = {
       "fancy-select__internal-value-item": true,
+      
     };
     let nodeStyle = { maxWidth: `${this.labelMaxWidth}px` };
     return (

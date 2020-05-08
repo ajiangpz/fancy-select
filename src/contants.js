@@ -7,3 +7,17 @@ export const INCLUDE_PARENT = "PARENT";
 export const INCLUDE_LEAF = "LEAF";
 export const ALL = "ALL";
 export const ALL_WITH_INDETERMINATE = "ALL_WITH_INDETERMINATE";
+
+// 键值
+export const KEY_CODES = {
+  BACKSPACE: 8,
+  ENTER: 13,
+  ESCAPE: 27,
+  END: 35,
+  HOME: 36,
+  ARROW_LEFT: 37,
+  ARROW_UP: 38,
+  ARROW_RIGHT: 39,
+  ARROW_DOWN: 40,
+  DELETE: 46,
+};

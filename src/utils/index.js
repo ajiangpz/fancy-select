@@ -3,17 +3,17 @@ export function createTree(size, level) {
   function addChilds(root, size, level, id = "") {
     for (let i = 0; i < size; i++) {
       const item = {
-        label: Math.random(0, 1),
+        name: Math.random(0, 1),
         expanded: false,
         children: [],
         id: id + (i + 1),
-        isDefaultExpanded: false
+        isDefaultExpanded: false,
       };
       root.push(item);
       if (level > 0) {
         addChilds(item.children, size, level - 1, item.id + "-");
       } else {
-        item.children = [];
+        item.children = null;
       }
     }
   }

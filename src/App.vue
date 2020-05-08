@@ -6,14 +6,25 @@
         :multiple="true"
         :options="options"
         :disableFuzzyMatching="true"
+        valueConsistsOf="LEAF_PRIORITY"
+        :limit="2"
+        :alwaysOpen="false"
+        :normalizer="normalizer"
+        :defaultExpandLevel="Infinity"
       >
       </treeselect>
     </div>
     <div class="item">
       <fancy-select
-        :tree-data="myOptions"
+        :tree-data="options"
         v-model="fancyData"
-        :multiple="true"
+        :multiple="false"
+        includeValue="PARENT"
+        place-holder="就在这里选择数据呀"
+        :limit="3"
+        :normalizer="normalizer"
+        :loadOptions="loadFn"
+        :defaultExpandLevel="Infinity"
       ></fancy-select>
     </div>
   </div>
@@ -26,14 +37,13 @@ import FancySelect from "./components/FancySelect";
 // import the styles
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import "./style/fancy-select.scss";
-import _ from "lodash";
-import { createTree } from "./utils";
+// import { createTree } from "./utils";
+import axios from "axios";
 export default {
   data() {
     return {
       value: null,
       options: [],
-      myOptions: [],
       fancyData: null,
     };
   },
@@ -44,50 +54,60 @@ export default {
     FancySelect,
   },
   created() {
-    this.options = createTree(10, 1);
-    this.myOptions = _.cloneDeep(this.options);
+    this.getData()
+      .then((res) => (this.options = res.data))
+      .catch((err) => console.error(err));
   },
   methods: {
     loadFn({ action, parentNode, callback }) {
       if (action === "LOAD_CHILDREN_OPTIONS") {
-        switch (parentNode.id) {
-          case "1-1": {
-            setTimeout(() => {
-              parentNode.children = [
-                {
-                  id: "1-1-1",
-                  label: Math.random(0, 1),
-                },
-                {
-                  id: "1-1-12",
-                  label: Math.random(0, 1),
-                },
-              ];
-              callback();
-            }, 1000);
-            break;
-          }
-          default: {
+        this.getChildren(parentNode.id)
+          .then((res) => {
+            parentNode.children = res.data;
+            callback();
+          })
+          .catch(() => {
             parentNode.children = [];
             callback();
-            break;
-          }
-        }
+          });
       }
+    },
+    normalizer(node) {
+      return {
+        id: node.id,
+        label: node.name,
+        children: node.children,
+      };
+    },
+    getChildren(pid) {
+      const url = `http://localhost:3000/tree/children?id=${pid}`;
+      return axios.get(url);
+    },
+    getData() {
+      const url = `http://localhost:3000/tree`;
+      return axios.get(url);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+body,
+html {
+  width: 100%;
+  height: 100%;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
   display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 60px;
+  box-sizing: border-box;
   justify-content: space-around;
   .item {
     width: 40%;

@@ -1,8 +1,8 @@
-import FancyTree from './components/tree.vue';
+import FancySelect from './components/tree.vue';
 
 /* istanbul ignore next */
-FancyTree.install = function(Vue) {
-  Vue.component(FancyTree.name, FancyTree);
+FancySelect.install = function(Vue) {
+  Vue.component(FancySelect.name, FancySelect);
 };
 
-export default FancyTree;
+export default FancySelect;
