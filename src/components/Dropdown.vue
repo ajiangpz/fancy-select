@@ -1,10 +1,6 @@
 <template>
-  <div class="fanct-tree__dropdown-container" v-if="instance.dropdown.isOpen">
-    <div
-      ref="dropdown"
-      class="fancy-select__dropdown"
-      @mousedown="instance.handleMouseDown"
-    >
+  <div class="fanct-tree__dropdown-container" v-show="instance.dropdown.isOpen">
+    <div class="fancy-select__dropdown" @mousedown="instance.handleMouseDown">
       <template v-if="instance.localSearch.active">
         <Tip
           type="no-results"
@@ -22,7 +18,6 @@
           ref="scroller"
           v-slot="{ item }"
         >
-        
           <Option :node="item" :key="item.id"></Option>
         </RecycleScroller>
       </template>

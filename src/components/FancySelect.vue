@@ -404,10 +404,17 @@ export default {
     openDropdown() {
       this.dropdown.isOpen = true;
       this.$nextTick(this.resetHighlightedOptionWhenNecessary());
+      this.$nextTick(() => {
+        this.scrollToPrevPosition();
+      });
       this.toggleClickOutsideEvent(true);
     },
     closeDropdown() {
-      this.dropdown.isOpen = false;
+      this.saveCurrentPosition();
+
+      this.$nextTick(() => {
+        this.dropdown.isOpen = false;
+      });
       this.toggleClickOutsideEvent(false);
       this.resetSearchQuery();
     },
@@ -722,7 +729,7 @@ export default {
       }
       if (this.single) {
         this._blurOnSelect = true;
-        this.closeDropdown();
+        // this.closeDropdown();
       }
     },
     _selectNode(node) {
@@ -779,6 +786,15 @@ export default {
           }
         }
       }
+    },
+    saveCurrentPosition() {
+      console.log("-----close------")
+      this._scrollPosition = this.getDropdown().scrollTop;
+    },
+    scrollToPrevPosition() {
+      console.log(this._scrollPosition);
+      // this.$refs.dropdown.$refs.scroller.scrollToPosition(this._scrollPosition);
+      this.getDropdown().scrollTop=this._scrollPosition;
     },
     addValue(node) {
       this.forest.selectedNodeIds.push(node.id);
@@ -911,6 +927,15 @@ export default {
       if (forceReset || current == null || !(current in this.forest.nodeMap)) {
         this.highlightFirstOption();
       }
+      // else {
+      // const $current = document.querySelector(
+      // `.fancy-select__treenode-container[data-id="${current}"]"`
+      // );
+      // const $dropdown = this.getDropdown();
+      // scrollIntoView($dropdown, $current.parentNode.parentNode);
+      //
+      // this.setCurrentHighlightedOption(this.getNode(current))
+      // }
     },
     setCurrentHighlightedOption(node, scroll = true) {
       const prev = this.dropdown.current;

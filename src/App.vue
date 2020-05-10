@@ -18,7 +18,7 @@
       <fancy-select
         :tree-data="options"
         v-model="fancyData"
-        :multiple="false"
+        :multiple="true"
         includeValue="PARENT"
         place-holder="就在这里选择数据呀"
         :limit="3"
