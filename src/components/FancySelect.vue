@@ -788,12 +788,9 @@ export default {
       }
     },
     saveCurrentPosition() {
-      console.log("-----close------")
       this._scrollPosition = this.getDropdown().scrollTop;
     },
     scrollToPrevPosition() {
-      console.log(this._scrollPosition);
-      // this.$refs.dropdown.$refs.scroller.scrollToPosition(this._scrollPosition);
       this.getDropdown().scrollTop=this._scrollPosition;
     },
     addValue(node) {
