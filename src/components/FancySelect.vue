@@ -791,7 +791,7 @@ export default {
       this._scrollPosition = this.getDropdown().scrollTop;
     },
     scrollToPrevPosition() {
-      this.getDropdown().scrollTop=this._scrollPosition;
+      this.getDropdown().scrollTop = this._scrollPosition;
     },
     addValue(node) {
       this.forest.selectedNodeIds.push(node.id);
@@ -962,6 +962,7 @@ export default {
       }
     },
     highlightFirstOption() {
+      // console.log("-------highlight-first-options-------")
       if (!this.hasVisibleOptions) return;
       const first = this.visibleOptionIds[0];
       this.setCurrentHighlightedOption(this.getNode(first));
@@ -970,8 +971,11 @@ export default {
       // console.log(this.$refs);
       if (!this.visibleOptionIds.length) return;
       const next = this.visibleOptionIds.indexOf(this.dropdown.current) + 1;
-      if (next === this.visibleOptionIds.length)
+      if (next === this.visibleOptionIds.length) {
+        // this.$refs.dropdown.$refs.scroller.scrollToItem(0);
+        this.getDropdown().scrollTop = 0;
         return this.highlightFirstOption();
+      }
       this.setCurrentHighlightedOption(
         this.getNode(this.visibleOptionIds[next])
       );
@@ -979,12 +983,16 @@ export default {
     highlightPrevOption() {
       if (!this.visibleOptionIds.length) return;
       const prev = this.visibleOptionIds.indexOf(this.dropdown.current) - 1;
-      if (prev == -1) return this.highlightedLastOption();
+      if (prev == -1) {
+        this.getDropdown().scrollTop = this.getDropdown().scrollHeight;
+        return this.highlightedLastOption();
+      }
       this.setCurrentHighlightedOption(
         this.getNode(this.visibleOptionIds[prev])
       );
     },
     highlightedLastOption() {
+      // console.log("-------highlight-last-options-------")
       if (!this.hasVisibleOptions) return;
       const last = this.getLast(this.visibleOptionIds);
       this.setCurrentHighlightedOption(this.getNode(last));
