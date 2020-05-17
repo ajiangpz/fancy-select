@@ -10,7 +10,6 @@
         :limit="2"
         :alwaysOpen="false"
         :normalizer="normalizer"
-        :defaultExpandLevel="Infinity"
       >
       </treeselect>
     </div>
@@ -24,7 +23,6 @@
         :limit="3"
         :normalizer="normalizer"
         :loadOptions="loadFn"
-        :defaultExpandLevel="Infinity"
       ></fancy-select>
     </div>
   </div>
@@ -32,10 +30,7 @@
 
 <script>
 // import the component
-import Treeselect from "@riophae/vue-treeselect";
 import FancySelect from "./components/FancySelect";
-// import the styles
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import "./style/fancy-select.scss";
 // import { createTree } from "./utils";
 import axios from "axios";
@@ -50,7 +45,6 @@ export default {
 
   name: "App",
   components: {
-    Treeselect,
     FancySelect,
   },
   created() {
@@ -107,6 +101,7 @@ html {
   width: 100%;
   height: 100%;
   padding: 60px;
+  background: lightblue;
   box-sizing: border-box;
   justify-content: space-around;
   .item {
