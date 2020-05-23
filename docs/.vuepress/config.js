@@ -1,5 +1,6 @@
 module.exports = {
-  title: "fancy-select,一个高性能的树形选择组件",
+  base:'/fancy-select/',
+  title: "fancy-select",
   themeConfig: {
     port: 8080, //端口,
     displayAllHeaders: true,
