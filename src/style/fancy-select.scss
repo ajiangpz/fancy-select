@@ -242,6 +242,7 @@ html {
     border-top-right-radius: 0px;
     overflow-x: hidden;
     overflow-y: auto;
+    z-index: 999;
     .fancy-select--open & {
       margin-top: -$fancy-select-controls-border-width;
       border-top-color: $fancy-select-controls-dropdown-divider-color;

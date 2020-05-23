@@ -51,6 +51,7 @@ const Option = {
           <div class="fancy-select__label-container">
             {this.renderCheckBox()}
             {this.renderLabel()}
+            {this.renderLoadingChildrenTip()}
           </div>
         </div>
       );
@@ -186,7 +187,7 @@ const Option = {
       if (!node.childrenStates.isLoading) {
         return null;
       }
-      return <loading>{instance.loadingText}</loading>;
+      return <loading></loading>;
     },
   },
 
@@ -201,7 +202,6 @@ const Option = {
     return (
       <div class={listItemClass}>
         {this.renderParentNode()}
-
       </div>
     );
   },

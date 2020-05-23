@@ -1,21 +1,26 @@
 {
   "name": "fancy-select2",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "a vue tree-select component",
   "repository": {
     "type": "git",
     "url": "https://github.com/ajianz/blog"
   },
-  "main":"dist/fancy-select2.common.js",
-  "files": ["src","dist"],
-  "css":"dist/fancy-select2.min.css",
-  "unpkg":"dist/fancy-select2.umd.min.js",
+  "main": "dist/fancy-select2.common.js",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "css": "dist/fancy-select2.min.css",
+  "unpkg": "dist/fancy-select2.umd.min.js",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "package": "vue-cli-service build --target lib --fancy-select  main ./src/index.js"
+    "package": "vue-cli-service build --target lib --fancy-select  main ./src/index.js",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "dependencies": {
     "core-js": "^3.6.4",
@@ -41,7 +46,8 @@
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "postcss-loader": "^3.0.0",
     "utils": "^0.3.1",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "vuepress": "^1.5.0"
   },
   "eslintConfig": {
     "root": true,
