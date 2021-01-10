@@ -110,9 +110,9 @@ const Option = {
     handleArrowClick(evt) {
       evt.stopPropagation();
       evt.preventDefault();
-
       let nextState;
       const { instance, node } = this;
+      console.log(node);
       if (instance.localSearch.active) {
         nextState = node.isExpandedOnSearch = !node.isExpandedOnSearch;
       } else {
@@ -184,7 +184,10 @@ const Option = {
     },
     renderLoadingChildrenTip() {
       const { node } = this;
-      if (!node.isParent||node.isParent&&node.childrenStates&&!node.childrenStates.isLoading) {
+      if (
+        !node.isParent ||
+        (node.isParent && node.childrenStates && !node.childrenStates.isLoading)
+      ) {
         return null;
       }
       return <loading></loading>;
@@ -199,11 +202,7 @@ const Option = {
 
       [`fancy-select__indent-level-${indentLevel}`]: true,
     };
-    return (
-      <div class={listItemClass}>
-        {this.renderParentNode()}
-      </div>
-    );
+    return <div class={listItemClass}>{this.renderParentNode()}</div>;
   },
 };
 export default Option;

@@ -413,7 +413,7 @@ export default {
       this.saveCurrentPosition();
 
       this.$nextTick(() => {
-        this.dropdown.isOpen = true;
+        this.dropdown.isOpen = false;
       });
       this.toggleClickOutsideEvent(false);
       // this.resetSearchQuery();
@@ -588,7 +588,7 @@ export default {
           const { id } = node;
           const label = node.label;
           const children = node.children;
-          const isParent = Array.isArray(children);
+          const isParent = Array.isArray(children)||children===null;
           const isLeaf = !isParent;
           const isDisabled = !!node.isDisabled;
           const isRootNode = parentNode === null;

@@ -27,8 +27,8 @@ export default {
         if (parentNode.id === "1") {
           setTimeout(() => {
             parentNode.children = [
-              { id: "1-1", name: "1-1", children: [] },
-              { id: "1-2", name: "1-2", children: [] },
+              { id: "1-1", name: "1-1" },
+              { id: "1-2", name: "1-2" },
             ];
             callback();
           }, 1000);
