@@ -183,8 +183,8 @@ const Option = {
       );
     },
     renderLoadingChildrenTip() {
-      const { node, instance } = this;
-      if (!node.childrenStates.isLoading) {
+      const { node } = this;
+      if (!node.isParent||node.isParent&&node.childrenStates&&!node.childrenStates.isLoading) {
         return null;
       }
       return <loading></loading>;

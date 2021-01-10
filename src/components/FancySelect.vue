@@ -413,10 +413,10 @@ export default {
       this.saveCurrentPosition();
 
       this.$nextTick(() => {
-        this.dropdown.isOpen = false;
+        this.dropdown.isOpen = true;
       });
       this.toggleClickOutsideEvent(false);
-      this.resetSearchQuery();
+      // this.resetSearchQuery();
     },
     toggleDropdown() {
       if (!this.dropdown.isOpen) {
@@ -588,7 +588,7 @@ export default {
           const { id } = node;
           const label = node.label;
           const children = node.children;
-          const isParent = Array.isArray(children) || children === null;
+          const isParent = Array.isArray(children);
           const isLeaf = !isParent;
           const isDisabled = !!node.isDisabled;
           const isRootNode = parentNode === null;
@@ -814,7 +814,6 @@ export default {
         queue.shift();
       }
     },
-
     traverseAllNodesDFS(callback) {
       this.forest.normalizedTreeData.forEach((rootNode) => {
         this.traverseDescendantsDFS(rootNode, callback);

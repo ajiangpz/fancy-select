@@ -1,5 +1,5 @@
 @import "~material-colors/dist/colors.scss";
-@import url("//at.alicdn.com/t/font_1706966_fb76hc2gqyf.css");
+@import "../assets/font/iconfont.css";
 $fancy-select-controls-border-width: 1px;
 $fancy-select-controls-bg-color: $md-grey-50;
 $fancy-select-controls-border-color: $md-grey-400;
@@ -27,6 +27,24 @@ html {
 .icon-warning {
   color: orange;
   display: block;
+}
+@for $i from 0 through 9 {
+  .fancy-select__indent-level-#{$i}{
+    @if $i==0 {
+      .fancy-select__treenode-container {
+        padding-left: 5px;
+      }
+    }
+    @else {
+      .fancy-select__treenode-container {
+        padding-left: 20px*$i;
+      }
+     .fancy-select__loading,.fancy-select__tip {
+        padding-left: 20px*$i+20px;
+      }
+    }
+    
+  }
 }
 .fancy-select {
   position: relative;
@@ -376,58 +394,9 @@ html {
     padding-left: 5px;
     white-space: nowrap;
   }
-  &__indent-level-0 {
-    .fancy-select__treenode-container {
-      padding-left: 5px;
-    }
-  }
-  &__indent-level-1 {
-    .fancy-select__treenode-container {
-      padding-left: 20px;
-    }
 
-    .fancy-select__loading,
-    .fancy-select__tip {
-      padding-left: 40px;
-    }
-  }
-  &__indent-level-2 {
-    .fancy-select__treenode-container {
-      padding-left: 40px;
-    }
-    .fancy-select__loading,
-    .fancy-select__tip {
-      padding-left: 60px;
-    }
-  }
-  &__indent-level-3 {
-    .fancy-select__treenode-container {
-      padding-left: 60px;
-    }
-    .fancy-select__loading,
-    .fancy-select__tip {
-      padding-left: 80px;
-    }
-  }
 
-  &__indent-level-4 {
-    .fancy-select__treenode-container {
-      padding-left: 80px;
-    }
-    .fancy-select__loading,
-    .fancy-select__tip {
-      padding-left: 105px;
-    }
-  }
-  &__indent-level-5 {
-    .fancy-select__treenode-container {
-      padding-left: 100px;
-    }
-    .fancy-select__loading,
-    .fancy-select__tip {
-      padding-left: 120x px;
-    }
-  }
+
   &__treenode--hide {
     display: none;
   }

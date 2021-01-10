@@ -12,7 +12,7 @@ export function createTree(size, level) {
       if (level > 0) {
         addChilds(item.children, size, level - 1, item.id + "-");
       } else {
-        item.children = null;
+        delete item.children;
       }
     }
   }

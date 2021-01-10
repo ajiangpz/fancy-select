@@ -1,19 +1,6 @@
 <template>
   <div id="app">
     <div class="item">
-      <treeselect
-        v-model="value"
-        :multiple="true"
-        :options="options"
-        :disableFuzzyMatching="true"
-        valueConsistsOf="LEAF_PRIORITY"
-        :limit="2"
-        :alwaysOpen="false"
-        :normalizer="normalizer"
-      >
-      </treeselect>
-    </div>
-    <div class="item">
       <fancy-select
         :tree-data="options"
         v-model="fancyData"
@@ -22,8 +9,11 @@
         place-holder="就在这里选择数据呀"
         :limit="3"
         :normalizer="normalizer"
-        :loadOptions="loadFn"
       ></fancy-select>
+    </div>
+    <div class="item">
+      <treeselect v-model="value" :multiple="true" :options="options" :normalizer="normalizer" />
+
     </div>
   </div>
 </template>
@@ -33,6 +23,10 @@
 import FancySelect from "./components/FancySelect";
 import "./style/fancy-select.scss";
 // import { createTree } from "./utils";
+// import the component
+import Treeselect from "@riophae/vue-treeselect";
+// import the styles
+
 import axios from "axios";
 export default {
   data() {
@@ -46,6 +40,7 @@ export default {
   name: "App",
   components: {
     FancySelect,
+    Treeselect
   },
   created() {
     this.getData()
@@ -78,7 +73,7 @@ export default {
       return axios.get(url);
     },
     getData() {
-      const url = `http://localhost:3000/tree`;
+      const url = `http://localhost:3000/tree?d=3&size=5`;
       return axios.get(url);
     },
   },
