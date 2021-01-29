@@ -1,10 +1,10 @@
 @import "~material-colors/dist/colors.scss";
-@import "../assets/font/iconfont.css";
 $fancy-select-controls-border-width: 1px;
 $fancy-select-controls-bg-color: $md-grey-50;
 $fancy-select-controls-border-color: $md-grey-400;
 $fancy-select-controls-dropdown-divider-color: $md-grey-300;
 $fancy-select-multi-value-item-bg: $md-blue-50;
+
 body,
 html {
   width: 100%;
@@ -13,46 +13,56 @@ html {
   padding: 0;
   // box-sizing: border-box;
 }
+
 @keyframes donut-spin {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
+
 .iconfont {
   font-size: 12px;
 }
+
 .icon-warning {
   color: orange;
   display: block;
 }
+
 @for $i from 0 through 9 {
-  .fancy-select__indent-level-#{$i}{
+  .fancy-select__indent-level-#{$i} {
     @if $i==0 {
       .fancy-select__treenode-container {
         padding-left: 5px;
       }
     }
+
     @else {
       .fancy-select__treenode-container {
-        padding-left: 20px*$i;
+        padding-left: 20px * $i;
       }
-     .fancy-select__loading,.fancy-select__tip {
-        padding-left: 20px*$i+20px;
+
+      .fancy-select__loading,
+      .fancy-select__tip {
+        padding-left: 20px * $i + 20px;
       }
     }
-    
   }
 }
+
 .fancy-select {
   position: relative;
   text-align: left;
+
   div,
   span {
     box-sizing: border-box;
   }
+
   &__controls {
     padding-left: 5px;
     padding-right: 5px;
@@ -64,40 +74,46 @@ html {
     border-radius: 5px;
     background: #fff;
     transition-duration: 200ms;
-    transition-property: border-color, box-shadow, width, height,
-      background-color, opacity;
+    transition-property: border-color, box-shadow, width, height, background-color, opacity;
     transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+
     .fancy-select--open & {
       border-bottom-left-radius: 0px;
       border-bottom-right-radius: 0px;
     }
   }
+
   &--single {
     .fancy-select__input-container {
       height: 100%;
       font-size: inherit;
     }
+
     .fancy-select__input {
       width: 100%;
       height: 100%;
     }
+
     .fancy-select__treenode--selected {
       font-weight: 600;
 
       background: $md-blue-50;
     }
   }
+
   &--isFocused {
     .fancy-select__single-value {
       color: $md-grey-100;
     }
   }
+
   &__value-container {
     width: 100%;
     vertical-align: middle;
     display: table-cell;
     position: relative;
   }
+
   &__internal-value-item-container,
   &__limit-tip {
     display: inline-block;
@@ -105,6 +121,7 @@ html {
     padding-right: 5px;
     vertical-align: top;
   }
+
   &__internal-value-item {
     display: inline-table;
     cursor: pointer;
@@ -116,11 +133,13 @@ html {
     font-size: 12px;
     vertical-align: top;
   }
+
   &__internal-values-container {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
   }
+
   &__single-value,
   &__placeholder {
     overflow: hidden;
@@ -136,9 +155,11 @@ html {
     left: 0;
     line-height: 34px;
   }
+
   &__single-value {
     color: #333;
   }
+
   &__internal-value-label,
   &__internal-value-remove {
     display: table-cell;
@@ -147,37 +168,45 @@ html {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+
     svg {
       width: 6px;
       height: 6px;
     }
   }
+
   &__internal-value-label {
     box-sizing: border-box;
     padding-right: 5px;
   }
+
   &__internal-value-remove {
     &:hover {
       color: #f60036;
     }
+
     padding-left: 5px;
     border-left: 1px solid #fff;
     color: #039be5;
     line-height: 0;
   }
+
   &--has-value {
     &.fancy-select--multi {
       .fancy-select__input-container {
         padding-left: 0;
       }
+
       .fancy-select__multi-value {
         margin-bottom: 5px;
       }
+
       .fancy-select__input-container {
         padding-top: 5px;
       }
     }
   }
+
   &--multi {
     .fancy-select__input-container {
       .fancy-select__input {
@@ -186,6 +215,7 @@ html {
       }
     }
   }
+
   &__input-container {
     // width: 100%;
     // padding-top: 5px;
@@ -193,6 +223,7 @@ html {
     line-height: 0;
     padding-left: 5px;
   }
+
   &__internal-item {
     width: 40px;
     display: inline-block;
@@ -200,6 +231,7 @@ html {
     border-color: #e0e0e0;
     border-radius: 2px;
   }
+
   &__input {
     line-height: inherit;
     max-width: 100%;
@@ -210,6 +242,7 @@ html {
     outline: none;
     font-size: 12px;
   }
+
   &__sizer {
     position: absolute;
     top: 0;
@@ -219,6 +252,7 @@ html {
     overflow: scroll;
     white-space: pre;
   }
+
   &__control-arrow-container,
   &__delete-icon-container {
     display: table-cell;
@@ -229,31 +263,35 @@ html {
     color: $md-grey-400;
     cursor: pointer;
   }
+
   &__delete-icon-container {
     &:hover {
       color: #f60036;
     }
   }
+
   &__control-arrow-container {
     &--rotate {
       transform: rotate(-180deg);
     }
+
     &:hover {
       color: #464646;
     }
   }
+
   &__control-arrow,
   &__delete-icon {
     width: 9px;
     height: 9px;
   }
+
   &__dropdown {
     position: absolute;
     top: 100%;
     width: 100%;
     box-sizing: border-box;
-    border: $fancy-select-controls-border-width solid
-      $fancy-select-controls-border-color;
+    border: $fancy-select-controls-border-width solid $fancy-select-controls-border-color;
     background-color: #fff;
     border-radius: 5px;
     border-top-left-radius: 0px;
@@ -261,22 +299,27 @@ html {
     overflow-x: hidden;
     overflow-y: auto;
     z-index: 999;
+
     .fancy-select--open & {
       margin-top: -$fancy-select-controls-border-width;
       border-top-color: $fancy-select-controls-dropdown-divider-color;
     }
+
     div {
       box-sizing: border-box;
     }
+
     .vue-recycle-scroller.direction-vertical:not(.page-mode) {
       max-height: 300px;
       position: relative;
+
       &:hover {
         &::-webkit-scrollbar {
           opacity: 1;
           display: block;
         }
       }
+
       &::-webkit-scrollbar {
         width: 8px;
         opacity: 0;
@@ -301,6 +344,7 @@ html {
     align-items: center;
     height: 30px;
   }
+
   &__treenode-arrow-container,
   &__treenode-arrow-placeholder {
     width: 20px;
@@ -310,9 +354,11 @@ html {
     line-height: 0;
     color: $md-grey-400;
   }
+
   &__treenode-arrow-container:hover {
     color: $md-grey-800;
   }
+
   &__label-container {
     vertical-align: middle;
     cursor: pointer;
@@ -321,6 +367,7 @@ html {
     table-layout: fixed;
     color: inherit;
   }
+
   &__treenode-arrow {
     width: 9px;
     height: 9px;
@@ -328,9 +375,11 @@ html {
     vertical-align: middle;
     transform: rotate(-90deg);
   }
+
   &__treenode-arrow--rotated {
     transform: rotate(0deg);
   }
+
   & svg {
     fill: currentColor;
   }
@@ -346,9 +395,11 @@ html {
     z-index: 1;
     transition: border-color 0.25s cubic-bezier(0.71, -0.46, 0.29, 1.46),
       background-color 0.25s cubic-bezier(0.71, -0.46, 0.29, 1.46);
+
     &--checked {
       border-color: #039be5;
       background: #039be5;
+
       &::after {
         box-sizing: content-box;
         content: "";
@@ -365,9 +416,11 @@ html {
         transform-origin: center;
       }
     }
+
     &--indeterminate {
       border-color: #039be5;
       background: #039be5;
+
       &::before {
         content: "";
         position: absolute;
@@ -380,11 +433,13 @@ html {
         top: 5px;
       }
     }
+
     &--unchecked {
       border-color: #e0e0e0;
       background-color: #fff;
     }
   }
+
   &__label {
     display: table-cell;
     overflow: hidden;
@@ -395,11 +450,10 @@ html {
     white-space: nowrap;
   }
 
-
-
   &__treenode--hide {
     display: none;
   }
+
   &__treenode--isHighlighted {
     background: $md-grey-100;
   }
@@ -414,6 +468,7 @@ html {
     color: #757575;
     line-height: 180%;
   }
+
   &__tip-text,
   &__loading-text {
     font-size: 12px;
@@ -422,6 +477,7 @@ html {
     padding: 0 5px;
     width: 100%;
   }
+
   &__checkbox-container,
   &__icon-container {
     display: table-cell;
@@ -430,6 +486,7 @@ html {
     text-align: center;
     line-height: 0;
   }
+
   & .donut {
     display: inline-block;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -439,7 +496,9 @@ html {
     height: 12px;
     animation: donut-spin 1.2s linear infinite;
   }
+
   &__multi-value-item--transition {
+
     &-enter-active,
     &-leave-active {
       transition-duration: 200ms;
@@ -466,6 +525,7 @@ html {
       transition: 200ms transform cubic-bezier(0.6, -0.28, 0.735, 0.045);
     }
   }
+
   &__limit-tip {
     &-text {
       cursor: default;
@@ -473,8 +533,18 @@ html {
       background: #039be5;
       font-size: 14px;
       border-radius: 2px;
-      padding: 0 2px;
+      padding: 2px;
       color: #fff;
+      display: inline-table;
+    }
+  }
+
+  &--warning {
+    display: inline-block;
+    font-size: 14px;
+
+    svg {
+      margin-right: 5px;
     }
   }
 }

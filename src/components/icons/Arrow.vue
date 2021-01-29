@@ -11,7 +11,5 @@
 </template>
 
 <script>
-export default {
-  name: "vue-treeselect--arrow",
-};
+export default { name: 'VueTreeselectArrow' };
 </script>

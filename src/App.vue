@@ -1,51 +1,39 @@
 <template>
   <div id="app">
     <div class="item">
+
       <fancy-select
         :tree-data="options"
         v-model="fancyData"
-        :multiple="true"
-        includeValue="PARENT"
         place-holder="就在这里选择数据呀"
         :limit="3"
         :normalizer="normalizer"
+        value-key="id"
       ></fancy-select>
-    </div>
-    <div class="item">
-      <treeselect v-model="value" :multiple="true" :options="options" :normalizer="normalizer" />
-
     </div>
   </div>
 </template>
 
 <script>
-// import the component
 import FancySelect from "./components/FancySelect";
 import "./style/fancy-select.scss";
-// import { createTree } from "./utils";
-// import the component
-import Treeselect from "@riophae/vue-treeselect";
-// import the styles
-
 import axios from "axios";
+import {data} from './store.js'
 export default {
   data() {
     return {
       value: null,
       options: [],
-      fancyData: null,
+      fancyData: [],
     };
   },
 
   name: "App",
   components: {
-    FancySelect,
-    Treeselect
+    FancySelect
   },
   created() {
-    this.getData()
-      .then((res) => (this.options = res.data))
-      .catch((err) => console.error(err));
+    this.options=data.result;
   },
   methods: {
     loadFn({ action, parentNode, callback }) {
@@ -72,10 +60,6 @@ export default {
       const url = `http://localhost:3000/tree/children?id=${pid}`;
       return axios.get(url);
     },
-    getData() {
-      const url = `http://localhost:3000/tree?d=3&size=5`;
-      return axios.get(url);
-    },
   },
 };
 </script>
@@ -94,16 +78,9 @@ html {
   color: #2c3e50;
   display: flex;
   width: 100%;
-  height: 100%;
   padding: 60px;
   background: lightblue;
   box-sizing: border-box;
   justify-content: space-around;
-  .item {
-    width: 40%;
-    padding: 10px;
-    border-radius: 5px;
-    min-height: 400px;
-  }
 }
 </style>

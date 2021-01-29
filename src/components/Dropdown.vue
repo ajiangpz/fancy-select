@@ -2,13 +2,13 @@
   <div class="fanct-tree__dropdown-container" v-show="instance.dropdown.isOpen">
     <div class="fancy-select__dropdown" @mousedown="instance.handleMouseDown">
       <template v-if="instance.localSearch.active">
-        <Tip
+        <Warning
           type="no-results"
           icon="warning"
           v-if="instance.localSearch.noResults"
+          :text="instance.noResultsText"
         >
-          {{ instance.noResultsText }}
-        </Tip>
+        </Warning>
 
         <RecycleScroller
           class="scroller"
@@ -22,16 +22,16 @@
         </RecycleScroller>
       </template>
       <template v-else>
-        <Tip
+        <Warning
           type="no-results"
           icon="warning"
           v-if="
             instance.rootOptionsStates.isLoaded &&
               instance.treeData.length === 0
           "
+          :text="instance.noResultsText"
         >
-          {{ instance.noResultsText }}
-        </Tip>
+        </Warning>
 
         <RecycleScroller
           class="scroller"
@@ -48,7 +48,7 @@
 </template>
 <script>
 import Option from "./Option.vue";
-import Tip from "./Tip";
+import Warning from "./icons/Warning.vue"
 import Vue from "vue";
 import { RecycleScroller } from "vue-virtual-scroller";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
@@ -66,7 +66,7 @@ export default {
   },
   components: {
     Option,
-    Tip,
+    Warning
   },
   methods: {
     renderNoResultsTip() {

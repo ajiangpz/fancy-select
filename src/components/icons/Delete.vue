@@ -7,7 +7,5 @@
 </template>
 
 <script>
-export default {
-  name: "fancy-select--x"
-};
+export default { name: 'FancySelectX' };
 </script>

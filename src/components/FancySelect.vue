@@ -5,6 +5,7 @@
   </div>
 </template>
 <script>
+/* eslint-disable */
 import Controls from "./Controls.vue";
 import Dropdown from "./Dropdown.vue";
 import createMap from "../utils/createMap.js";
@@ -20,7 +21,7 @@ import {
   INCLUDE_PARENT,
   INCLUDE_LEAF,
   ALL,
-  ALL_WITH_INDETERMINATE,
+  ALL_WITH_INDETERMINATE
 } from "../contants";
 import { removeFromArray } from "../utils/removeFromArray";
 import { includes } from "../utils/includes";
@@ -36,21 +37,21 @@ function createChildrenStates() {
   return {
     isLoading: false,
     isLoaded: false,
-    loadingErr: "",
+    loadingErr: ""
   };
 }
 export default {
   name: "FancySelect",
   provide() {
     return {
-      instance: this,
+      instance: this
     };
   },
   data() {
     return {
       dropdown: {
         isOpen: false,
-        current: null,
+        current: null
       },
       forest: {
         nodeMap: createMap(),
@@ -58,95 +59,95 @@ export default {
         selectedNodeMap: createMap(),
         selectedNodeIds: [],
         normalizedTreeData: [],
-        flattenTree: [],
+        flattenTree: []
       },
       controls: {
         searchQuery: "",
-        isFocus: false,
+        isFocus: false
       },
       localSearch: {
         active: false,
         noResults: true,
-        countMap: createMap(),
+        countMap: createMap()
       },
-      rootOptionsStates: createChildrenStates(),
+      rootOptionsStates: createChildrenStates()
     };
   },
   props: {
+    value: null,
     treeData: {
-      type: Array,
+      type: Array
     },
     label: {
       type: String,
-      default: "label",
+      default: "label"
     },
     // 是否多选
     multiple: {
       type: Boolean,
-      default: true,
+      default: true
     },
     maxHeight: {
       type: Number,
-      default: 300,
+      default: 300
     },
     matchKeys: {
       type: Array,
-      default: () => ["label"],
+      default: () => ["label"]
     },
     includeValue: {
       type: String,
       default: INCLUDE_PARENT,
-      validator: (value) => {
+      validator: value => {
         const acceptableTypes = [
           INCLUDE_PARENT,
           INCLUDE_LEAF,
           ALL,
-          ALL_WITH_INDETERMINATE,
+          ALL_WITH_INDETERMINATE
         ];
         return includes(acceptableTypes, value);
-      },
+      }
     },
     noResultsText: {
       type: String,
       default() {
         return "暂无数据";
-      },
+      }
     },
     loadOptions: {
-      type: Function,
+      type: Function
     },
     noChildrenText: {
       type: String,
       default() {
         return "暂无子节点";
-      },
+      }
     },
     loadingText: {
       type: String,
       default() {
         return "正在加载...";
-      },
+      }
     },
-    value: null,
     placeHolder: {
       type: String,
       default() {
         return "请选择数据...";
-      },
+      }
     },
     disableBranchNodes: {
       type: Boolean,
-      default: false,
+      default: false
     },
     limit: {
       type: Number,
-      default: Infinity,
+      default: Infinity
     },
     limitText: {
       type: Function,
       default: function limitTextDefault(count) {
         return `+ ${count}`;
-      },
+      }
     },
     normalizer: {
       type: Function,
@@ -154,18 +155,22 @@ export default {
         return {
           id: node.id,
           label: node.label,
-          children: node.children,
+          children: node.children
         };
-      },
+      }
     },
     defaultExpandLevel: {
       type: Number,
-      default: 0,
+      default: 0
     },
+    valueKey: {
+      type: String,
+      default: ""
+    }
   },
   components: {
     Controls,
-    Dropdown,
+    Dropdown
   },
   computed: {
     wrapperClass() {
@@ -176,23 +181,21 @@ export default {
         "fancy-select--has-value": this.hasValue,
         "fancy-select--single": this.single,
         "fancy-select--multi": this.multiple,
-        "fancy-select--isFocused": this.controls.isFocus,
+        "fancy-select--isFocused": this.controls.isFocus
       };
     },
     selectedNodes() {
       return this.forest.selectedNodeIds.map(this.getNode);
     },
     hasParentNodes() {
-      return this.forest.normalizedTreeData.some(
-        (rootNode) => rootNode.isParent
-      );
+      return this.forest.normalizedTreeData.some(rootNode => rootNode.isParent);
     },
     internalValues() {
       let internalValues;
-      if (this.includeValue == ALL) {
+      if (this.includeValue == ALL || this.single) {
         internalValues = this.forest.selectedNodeIds.slice();
       } else if (this.includeValue == INCLUDE_PARENT) {
-        internalValues = this.forest.selectedNodeIds.filter((id) => {
+        internalValues = this.forest.selectedNodeIds.filter(id => {
           const node = this.getNode(id);
           if (node.isRootNode) return true;
           // 返回父节点没有被选中的节点，因为如果父节点被选中，直接返回父节点就行了
@@ -201,7 +204,7 @@ export default {
       }
       // 只返回子节点
       else if (this.includeValue == INCLUDE_LEAF) {
-        internalValues = this.forest.selectedNodeIds.filter((id) => {
+        internalValues = this.forest.selectedNodeIds.filter(id => {
           let node = this.getNode(id);
           if (node.isLeaf) {
             return true;
@@ -212,8 +215,8 @@ export default {
         let indeterminateNodeIds = [];
         internalValues = this.forest.selectedNodeIds.slice();
         // 遍历每个选中的节点，判断它的祖先节点是否为中间状态
-        this.selectedNodes.forEach((selectedNode) => {
-          selectedNode.ancestors.forEach((ancestor) => {
+        this.selectedNodes.forEach(selectedNode => {
+          selectedNode.ancestors.forEach(ancestor => {
             if (includes(indeterminateNodeIds, ancestor.id)) return;
             if (includes(internalValues, ancestor.id)) return;
             indeterminateNodeIds.push(ancestor.id);
@@ -231,7 +234,7 @@ export default {
     },
     visibleOptionIds() {
       const visibleOptionIds = [];
-      this.traverAllNodesByIndex((node) => {
+      this.traverAllNodesByIndex(node => {
         if (
           !this.localSearch.active ||
           this.shouldNodeBeIncludedInSearchResult(node)
@@ -250,7 +253,7 @@ export default {
     },
     totalNode() {
       return Object.keys(this.forest.nodeMap).length;
-    },
+    }
   },
   watch: {
     treeData: {
@@ -259,7 +262,7 @@ export default {
         this.rootOptionsStates.isLoaded = Array.isArray(this.treeData);
       },
       immediate: true,
-      deep: true,
+      deep: true
     },
 
     "controls.searchQuery"() {
@@ -271,6 +274,15 @@ export default {
         this.$emit("input", this.getValue());
       }
     },
+    value: {
+      handler() {
+        const nodeIdsFromValue = this.extractCheckedNodeIdsFromValue();
+        const hasChanged = quickDiff(nodeIdsFromValue, this.internalValues);
+        // console.log(nodeIdsFromValue,this.internalValue)
+        if (hasChanged) this.fixSelectedNodeIds(nodeIdsFromValue);
+      },
+      immediate:true
+    }
   },
   created() {
     this.resetFlags();
@@ -297,7 +309,7 @@ export default {
       const result = this.loadOptions({
         action,
         ...args,
-        callback,
+        callback
       });
       if (isPromise(result)) {
         result
@@ -305,11 +317,11 @@ export default {
             () => {
               callback();
             },
-            (err) => {
+            err => {
               callback(err);
             }
           )
-          .catch((err) => {
+          .catch(err => {
             console.error(err);
           });
       }
@@ -320,7 +332,7 @@ export default {
       this.callLoadOptionsFn({
         action: "LOAD_CHILDREN_OPTIONS",
         args: {
-          parentNode,
+          parentNode
         },
         isPending: () => {
           return this.getNode(id).childrenStates.isLoading;
@@ -332,12 +344,12 @@ export default {
         succeed: () => {
           this.getNode(id).childrenStates.isLoaded = true;
         },
-        fail: (err) => {
+        fail: err => {
           this.getNode(id).childrenStates.loadingError = getErrorMessage(err);
         },
         end: () => {
           this.getNode(id).childrenStates.isLoading = false;
-        },
+        }
       });
     },
     // 根据id获取node节点
@@ -349,7 +361,10 @@ export default {
     },
     // 获取选中的数据，返回原始的数据
     getValue() {
-      const rowNodes = this.internalValues.map((id) => this.getNode(id).raw);
+      const rowNodes = this.internalValues.map(id => {
+        let raw = this.getNode(id).raw;
+        return this.valueKey ? raw[this.valueKey] : raw;
+      });
       return this.multiple ? rowNodes : rowNodes[0];
     },
     getLast(arr) {
@@ -416,7 +431,7 @@ export default {
         this.dropdown.isOpen = false;
       });
       this.toggleClickOutsideEvent(false);
-      // this.resetSearchQuery();
+      this.resetSearchQuery();
     },
     toggleDropdown() {
       if (!this.dropdown.isOpen) {
@@ -445,8 +460,8 @@ export default {
       this._blurOnSelect = false;
     },
     traverAllNodesByIndex(callback) {
-      const walk = (parentNode) => {
-        parentNode.children.forEach((child) => {
+      const walk = parentNode => {
+        parentNode.children.forEach(child => {
           if (callback(child) !== false && child.isParent) {
             walk(child);
           }
@@ -459,17 +474,17 @@ export default {
     },
     buildForestState() {
       const selectedNodeMap = createMap();
-      this.forest.selectedNodeIds.forEach((selectedNodeId) => {
+      this.forest.selectedNodeIds.forEach(selectedNodeId => {
         selectedNodeMap[selectedNodeId] = true;
       });
       this.forest.selectedNodeMap = selectedNodeMap;
       const checkStateMap = createMap();
-      this.traverAllNodesByIndex((node) => {
+      this.traverAllNodesByIndex(node => {
         checkStateMap[node.id] = UNCHECKED;
       });
-      this.selectedNodes.forEach((selectedNode) => {
+      this.selectedNodes.forEach(selectedNode => {
         checkStateMap[selectedNode.id] = CHECKED;
-        selectedNode.ancestors.forEach((ancestorNode) => {
+        selectedNode.ancestors.forEach(ancestorNode => {
           if (!this.isSelected(ancestorNode)) {
             checkStateMap[ancestorNode.id] = INDETERMINATE;
           }
@@ -496,7 +511,7 @@ export default {
     flattenForest(normalizedTreeData) {
       const flattenTree = [];
       // 如果要扁平化一个树，需要深度优先遍历每个节点才能按照原本的顺序展示这一个树
-      normalizedTreeData.forEach((node) => {
+      normalizedTreeData.forEach(node => {
         flattenTree.push(node);
         this.traverseDescendantsDFS(node, function(node) {
           flattenTree.push(node);
@@ -505,15 +520,16 @@ export default {
       return flattenTree;
     },
     fixSelectedNodeIds(prevSelectedNodeIds) {
+      console.log(prevSelectedNodeIds);
       let nextSelectedNodeIds = [];
       if (this.single || this.includeValue === ALL) {
         nextSelectedNodeIds = prevSelectedNodeIds;
       } else if (this.includeValue === INCLUDE_PARENT) {
-        prevSelectedNodeIds.forEach((nodeId) => {
+        prevSelectedNodeIds.forEach(nodeId => {
           nextSelectedNodeIds.push(nodeId);
           const node = this.getNode(nodeId);
           if (node.isParent) {
-            this.traverseDescendantsBFS(node, (descendant) => {
+            this.traverseDescendantsBFS(node, descendant => {
               nextSelectedNodeIds.push(descendant.id);
             });
           }
@@ -536,7 +552,7 @@ export default {
         }
       } else if (this.includeValue === ALL_WITH_INDETERMINATE) {
         const map = createMap();
-        const queue = prevSelectedNodeIds.filter((nodeId) => {
+        const queue = prevSelectedNodeIds.filter(nodeId => {
           const node = this.getNode(nodeId);
           return node.isLeaf || node.children.length;
         });
@@ -557,6 +573,7 @@ export default {
         this.forest.selectedNodeIds,
         nextSelectedNodeIds
       );
+      console.log(hasChanged);
       if (hasChanged) {
         this.forest.selectedNodeIds = nextSelectedNodeIds;
       }
@@ -583,12 +600,12 @@ export default {
     // 规范数据
     normalize(parentNode, nodes, prevNodeMap) {
       let normalizedTreeData = nodes
-        .map((node) => [this.enhancedNormalizer(node), node])
+        .map(node => [this.enhancedNormalizer(node), node])
         .map(([node, raw]) => {
           const { id } = node;
           const label = node.label;
           const children = node.children;
-          const isParent = Array.isArray(children)||children===null;
+          const isParent = Array.isArray(children) && children.length > 0;
           const isLeaf = !isParent;
           const isDisabled = !!node.isDisabled;
           const isRootNode = parentNode === null;
@@ -597,7 +614,7 @@ export default {
           const lowerCased = this.matchKeys.reduce(
             (prev, key) => ({
               ...prev,
-              [key]: stringifyOptionPropValue(node[key]),
+              [key]: stringifyOptionPropValue(node[key])
             }),
             {}
           );
@@ -629,13 +646,13 @@ export default {
             const isLoaded = Array.isArray(children);
             this.$set(normalizedNode, "childrenStates", {
               ...createChildrenStates(),
-              isLoaded,
+              isLoaded
             });
             this.$set(normalizedNode, "count", {
               all_children: 0,
               leaf_children: 0,
               all_descendant: 0,
-              leaf_descendant: 0,
+              leaf_descendant: 0
             });
             this.$set(normalizedNode, "hasMatchedDescendants", false);
             this.$set(normalizedNode, "hasDisabledDescendants", false);
@@ -656,17 +673,17 @@ export default {
                 : []
             );
             if (isDefaultExpanded === true) {
-              normalizedNode.ancestors.forEach((ancestor) => {
+              normalizedNode.ancestors.forEach(ancestor => {
                 ancestor.isExpanded = true;
               });
             }
           }
           normalizedNode.ancestors.forEach(
-            (parent) => parent.count.all_descendant++
+            parent => parent.count.all_descendant++
           );
           if (isLeaf) {
             normalizedNode.ancestors.forEach(
-              (parent) => parent.count.leaf_descendant++
+              parent => parent.count.leaf_descendant++
             );
           }
           if (!isRootNode) {
@@ -705,7 +722,7 @@ export default {
           this.forest.selectedNodeIds = [];
         } else {
           this.forest.selectedNodeIds = this.forest.selectedNodeIds.filter(
-            (nodeID) => this.getNode(nodeID).isDisabled
+            nodeID => this.getNode(nodeID).isDisabled
           );
         }
         this.buildForestState();
@@ -745,7 +762,7 @@ export default {
       // 父节点处理方法
       if (node.isParent) {
         this.addValue(node);
-        this.traverseDescendantsBFS(node, (descendant) => {
+        this.traverseDescendantsBFS(node, descendant => {
           if (!descendant.isDisabled) {
             this.addValue(descendant);
           }
@@ -767,7 +784,7 @@ export default {
       this.forest.checkStateMap[node.id] = UNCHECKED;
       let hasUncheckedDescenant = false;
       if (node.isParent) {
-        this.traverseDescendantsBFS(node, (descendant) => {
+        this.traverseDescendantsBFS(node, descendant => {
           if (!descendant.isDisabled) {
             this.removeValue(descendant);
             hasUncheckedDescenant = true;
@@ -814,22 +831,23 @@ export default {
         queue.shift();
       }
     },
+
     traverseAllNodesDFS(callback) {
-      this.forest.normalizedTreeData.forEach((rootNode) => {
+      this.forest.normalizedTreeData.forEach(rootNode => {
         this.traverseDescendantsDFS(rootNode, callback);
         callback(rootNode);
       });
     },
     traverseDescendantsDFS(parentNode, callback) {
       if (!parentNode.isParent) return;
-      parentNode.children.forEach((child) => {
+      parentNode.children.forEach(child => {
         this.traverseDescendantsDFS(child, callback);
         callback(child);
       });
     },
     traverseAllNodesByIndex(callback) {
-      const walk = (parentNode) => {
-        parentNode.children.forEach((child) => {
+      const walk = parentNode => {
+        parentNode.children.forEach(child => {
           if (callback(child) !== false && child.isParent) {
             walk(child);
           }
@@ -847,7 +865,7 @@ export default {
       this.localSearch.active = true;
       this.localSearch.noResults = true;
       // 深的节点优先遍历
-      this.traverseAllNodesDFS((node) => {
+      this.traverseAllNodesDFS(node => {
         if (node.isParent) {
           node.isExpandedOnSearch = false;
           node.showAllChildrenOnSearch = false;
@@ -857,7 +875,7 @@ export default {
             all_children: 0,
             all_descendant: 0,
             leaf_children: 0,
-            leaf_descendant: 0,
+            leaf_descendant: 0
           });
         }
       });
@@ -866,25 +884,25 @@ export default {
       const splitSearchQuery = lowerCasedSearchQuery
         .replace(/\s+/g, " ")
         .split(" ");
-      this.traverseAllNodesDFS((node) => {
+      this.traverseAllNodesDFS(node => {
         // 以空格分割
         if (splitSearchQuery.length > 1) {
-          node.isMatched = splitSearchQuery.every((filterValue) =>
+          node.isMatched = splitSearchQuery.every(filterValue =>
             //  TODO 模糊搜索
             this.match(filterValue, node.nestedSearchLabel)
           );
         } else {
-          node.isMatched = this.matchKeys.some((matchKey) =>
+          node.isMatched = this.matchKeys.some(matchKey =>
             this.match(lowerCasedSearchQuery, node.lowerCased[matchKey])
           );
         }
         if (node.isMatched) {
           this.localSearch.noResults = false;
-          node.ancestors.forEach((ancestor) => {
+          node.ancestors.forEach(ancestor => {
             this.localSearch.countMap[ancestor.id]["all_descendant"]++;
           });
           if (node.isLeaf) {
-            node.ancestors.forEach((ancestor) => {
+            node.ancestors.forEach(ancestor => {
               this.localSearch.countMap[ancestor.id]["leaf_descendant"]++;
             });
           }
@@ -1011,9 +1029,24 @@ export default {
     enhancedNormalizer(raw) {
       return {
         ...raw,
-        ...this.normalizer(raw),
+        ...this.normalizer(raw)
       };
     },
-  },
+    extractCheckedNodeIdsFromValue() {
+      if (this.value == null) return [];
+
+      if (this.valueKey === "id") {
+        return this.multiple ? this.value.slice() : [this.value];
+      }
+
+      return (this.multiple ? this.value : [this.value])
+        .map(node =>
+          typeof node === "object"
+            ? this.enhancedNormalizer(node)
+            : { id: node }
+        )
+        .map(node => node.id);
+    }
+  }
 };
 </script>
