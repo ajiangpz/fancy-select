@@ -197,7 +197,6 @@ export default {
       :normalizer="normalizer"
       :limit="3"
     ></fancy-select>
-
   </div>
 </template>
 <script>
