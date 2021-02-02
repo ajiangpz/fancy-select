@@ -165,7 +165,7 @@ export default {
     },
     valueKey: {
       type: String,
-      default: ""
+      default: "id"
     }
   },
   components: {

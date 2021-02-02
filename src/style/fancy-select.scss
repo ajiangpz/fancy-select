@@ -39,9 +39,7 @@ html {
       .fancy-select__treenode-container {
         padding-left: 5px;
       }
-    }
-
-    @else {
+    } @else {
       .fancy-select__treenode-container {
         padding-left: 20px * $i;
       }
@@ -74,8 +72,9 @@ html {
     border-radius: 5px;
     background: #fff;
     transition-duration: 200ms;
-    transition-property: border-color, box-shadow, width, height, background-color, opacity;
-    transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    transition-property: border-color, box-shadow, width, height,
+      background-color, opacity;
+    transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
 
     .fancy-select--open & {
       border-bottom-left-radius: 0px;
@@ -291,7 +290,8 @@ html {
     top: 100%;
     width: 100%;
     box-sizing: border-box;
-    border: $fancy-select-controls-border-width solid $fancy-select-controls-border-color;
+    border: $fancy-select-controls-border-width solid
+      $fancy-select-controls-border-color;
     background-color: #fff;
     border-radius: 5px;
     border-top-left-radius: 0px;
@@ -498,7 +498,6 @@ html {
   }
 
   &__multi-value-item--transition {
-
     &-enter-active,
     &-leave-active {
       transition-duration: 200ms;
@@ -506,11 +505,11 @@ html {
     }
 
     &-enter-active {
-      transition-timing-function: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+      transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
     }
 
     &-leave-active {
-      transition-timing-function: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+      transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
       // trigger animation when element is removed
       position: absolute;
     }
@@ -519,10 +518,6 @@ html {
     &-leave-to {
       transform: scale(0.7);
       opacity: 0;
-    }
-
-    &-move {
-      transition: 200ms transform cubic-bezier(0.6, -0.28, 0.735, 0.045);
     }
   }
 
