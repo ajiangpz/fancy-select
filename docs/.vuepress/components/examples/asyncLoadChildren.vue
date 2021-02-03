@@ -12,7 +12,7 @@
 export default {
   data() {
     return {
-      data: [{ id: "1", name: "1", children: null }],
+      data: [{ id: "1", name: "1", children: null,isParent:true}],
     };
   },
   methods: {
