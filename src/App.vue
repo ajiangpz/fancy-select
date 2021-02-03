@@ -6,16 +6,13 @@
       place-holder="就在这里选择数据呀"
       :limit="3"
       :normalizer="normalizer"
-      value-key="name"
     ></fancy-select>
-    <treeselect :normalizer="normalizer" v-model="value" :multiple="true" :options="options" value-format="name"/>
   </div>
 </template>
 
 <script>
 import FancySelect from "./components/FancySelect";
 // import the component
-import Treeselect from "@riophae/vue-treeselect";
 // import the styles
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import "./style/fancy-select.scss";
@@ -24,7 +21,6 @@ import { data } from "./store.js";
 export default {
   data() {
     return {
-      value: ["南头派出所"],
       options: [],
       fancyData: [],
     };
@@ -33,7 +29,6 @@ export default {
   name: "App",
   components: {
     FancySelect,
-    Treeselect,
   },
   created() {
     this.options = data.result;

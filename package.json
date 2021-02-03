@@ -1,10 +1,10 @@
 {
   "name": "fancy-select2",
-  "version": "0.4.0",
+  "version": "1.0.1",
   "description": "a vue tree-select component",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ajianz/blog"
+    "url": "https://gitee.com/pzzzFE/fancy-select"
   },
   "main": "dist/fancy-select2.common.js",
   "files": [

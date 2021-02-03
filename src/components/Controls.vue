@@ -11,43 +11,42 @@
       >
         {{ instance.placeHolder }}
       </div>
-      <div
+
+      <transition-group
         class="fancy-select__internal-values-container fancy-select__multi-value"
         v-if="instance.multiple"
+        name="fancy-select__multi-value-item--transition"
+        tag="div"
       >
-        <transition-group
-          name="fancy-select__multi-value-item--transition"
-          tag="div"
-        >
-          <internal-item
-            v-for="node in instance.internalValues
-              .slice(0, instance.limit)
-              .map((id) => instance.getNode(id))"
-            :key="node.id"
-            :node="node"
-            :label-max-width="labelMaxWidth"
-          ></internal-item>
-          <div class="fancy-select__limit-tip" v-if="count > 0" key="limit-tip">
-            <span class="fancy-select__limit-tip-text">{{
-              instance.limitText(count)
-            }}</span>
-          </div>
-          <div class="fancy-select__input-container" key="input-container">
-            <input
-              class="fancy-select__input"
-              :style="{ width: instance.multiple ? `${inputWidth}px` : null }"
-              type="text"
-              @blur="handleBlur"
-              v-model="value"
-              @input="handleInput"
-              @focus="handleFocus"
-              @keydown="handleKeyDown"
-              ref="input"
-            />
-            <div class="fancy-select__sizer" ref="sizer">{{ value }}</div>
-          </div>
-        </transition-group>
-      </div>
+        <internal-item
+          v-for="node in instance.internalValues
+            .slice(0, instance.limit)
+            .map((id) => instance.getNode(id))"
+          :key="node.id"
+          :node="node"
+          :label-max-width="labelMaxWidth"
+        ></internal-item>
+        <div class="fancy-select__limit-tip" v-if="count > 0" key="limit-tip">
+          <span class="fancy-select__limit-tip-text">{{
+            instance.limitText(count)
+          }}</span>
+        </div>
+        <div class="fancy-select__input-container" key="input-container">
+          <input
+            class="fancy-select__input"
+            :style="{ width: instance.multiple ? `${inputWidth}px` : null }"
+            type="text"
+            @blur="handleBlur"
+            v-model="value"
+            @input="handleInput"
+            @focus="handleFocus"
+            @keydown="handleKeyDown"
+            ref="input"
+          />
+          <div class="fancy-select__sizer" ref="sizer">{{ value }}</div>
+        </div>
+      </transition-group>
+
       <template v-else>
         <single-value v-if="!value"></single-value>
         <div class="fancy-select__input-container">
