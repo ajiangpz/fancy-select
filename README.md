@@ -21,7 +21,7 @@ npm install --save fancy-select2
 `script` 引入
 
 ```html
-<script src="https://unpkg.com/fancy-select2@0.2.2"></script>
+<script src="https://unpkg.com/fancy-select2"></script>
 ```
 
 ## 使用

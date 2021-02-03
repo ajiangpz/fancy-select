@@ -66,7 +66,7 @@ export default {
 ```js
 <template>
   <div class="demo">
-    <fancy-select :tree-data="data" :normalizer="normalizer" :limit="3"></fancy-select>
+    <fancy-select :tree-data="data" :normalizer="normalizer" :limit="3" :limit="3"></fancy-select>
   </div>
 </template>
 <script>
@@ -189,6 +189,42 @@ export default {
 ## 一次性加载并展开大量节点
 
 <DemoSource componentName="examples-bigData">
+```js
+<template>
+  <div class="demo">
+    <fancy-select
+      :tree-data="data"
+      :normalizer="normalizer"
+      :limit="3"
+    ></fancy-select>
+  </div>
+</template>
+<script>
+import { createTree } from "../../../../src/utils";
+export default {
+  data() {
+    return {
+      data: createTree(10, 3),
+
+    };
+
+},
+methods: {
+normalizer(node) {
+return {
+label: node.name,
+children: node.children,
+};
+},
+},
+};
+</script>
+```
+</DemoSource>
+
+## 双向绑定
+
+<DemoSource componentName="examples-vModel">
 ```js
 <template>
   <div class="demo">
