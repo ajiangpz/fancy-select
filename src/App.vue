@@ -6,6 +6,7 @@
       place-holder="就在这里选择数据呀"
       :limit="3"
       :normalizer="normalizer"
+      :multiple="false"
     ></fancy-select>
   </div>
 </template>
@@ -22,7 +23,7 @@ export default {
   data() {
     return {
       options: [],
-      fancyData: [],
+      fancyData: ["440304000000"],
     };
   },
 

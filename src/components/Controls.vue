@@ -66,6 +66,7 @@
     <div
       class="fancy-select__delete-icon-container"
       title="清空所有"
+      v-if="instance.hasValue"
       v-on:click.stop.prevent="handleDelete($event)"
     >
       <Delete class="fancy-select__delete-icon"></Delete>
